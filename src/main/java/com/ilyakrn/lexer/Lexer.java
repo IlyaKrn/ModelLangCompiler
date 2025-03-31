@@ -150,6 +150,8 @@ public class Lexer {
         lexTables.get(TABLE_NUMBERS_ID).clear();
         lexemesList.clear();
         input.clear();
+        lexBuffer = "";
+        currentChar = null;
 
         char[] progChars = progText.toCharArray();
         for (int i = 0; i < progChars.length; i++) {
@@ -165,6 +167,43 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else if (isBinAllow()) {
                         currentState = STATE.NUM_BIN;
+                        clean();
+                        add();
+                    } else if (isOctAllow()) {
+                        currentState = STATE.NUM_OCT;
+                        clean();
+                        add();
+                    } else if (isDecAllow()) {
+                        currentState = STATE.NUM_DEC;
+                        clean();
+                        add();
+                    } else if (isLetter()) {
+                        currentState = STATE.IDENT;
+                        clean();
+                        add();
+                    } else {
+                        currentState = STATE.READ;
+                        System.out.println("del: " + lexBuffer);
+                        clean();
+                    }
+                    break;
+                case NUM_BIN:
+                    read();
+                    if(currentChar == null){
+                        currentState = STATE.ERROR;
+                    } else if (isBinAllow()) {
+                        add();
+                    } else if (currentChar == 'B' || currentChar == 'b') {
+                        currentState = STATE.NUM_BIN_FIN;
+                        add();
+                    } else if (currentChar == 'O' || currentChar == 'o') {
+                        currentState = STATE.NUM_OCT_FIN;
+                        add();
+                    } else if (currentChar == 'D' || currentChar == 'd') {
+                        currentState = STATE.NUM_DEC_FIN;
+                        add();
+                    } else if (currentChar == 'H' || currentChar == 'h') {
+                        currentState = STATE.NUM_HEX_FIN;
                         add();
                     } else if (isOctAllow()) {
                         currentState = STATE.NUM_OCT;
@@ -172,31 +211,163 @@ public class Lexer {
                     } else if (isDecAllow()) {
                         currentState = STATE.NUM_DEC;
                         add();
-                    } else if (isLetter()) {
-                        currentState = STATE.IDENT;
+                    } else if (isHexAllow()) {
+                        currentState = STATE.NUM_HEX;
                         add();
                     } else {
-
+                        currentState = STATE.READ;
+                        System.out.println("bin: " + lexBuffer);
+                        clean();
                     }
                     break;
-                case NUM_BIN:
-//                    read();
-//                    if(currentChar == null){
-//                        currentState = STATE.ERROR;
-//                    } else if (isBinAllow()) {
-//                        add();
-//                    } else if (currentChar == 'B' || currentChar == 'b') {
-//                        currentState = STATE.NUM_BIN_FIN;
-//                        add();
-//                    } else if (isDecAllow()) {
-//                        currentState = STATE.NUM_DEC;
-//                        add();
-//                    } else if (isLetter()) {
-//                        currentState = STATE.IDENT;
-//                        add();
-//                    } else {
-//
-//                    }
+                case NUM_OCT:
+                    read();
+                    if(currentChar == null){
+                        currentState = STATE.ERROR;
+                    } else if (isOctAllow()) {
+                        add();
+                    } else if (currentChar == 'O' || currentChar == 'o') {
+                        currentState = STATE.NUM_OCT_FIN;
+                        add();
+                    } else if (currentChar == 'D' || currentChar == 'd') {
+                        currentState = STATE.NUM_DEC_FIN;
+                        add();
+                    } else if (currentChar == 'H' || currentChar == 'h') {
+                        currentState = STATE.NUM_HEX_FIN;
+                        add();
+                    } else if (isDecAllow()) {
+                        currentState = STATE.NUM_DEC;
+                        add();
+                    } else if (isHexAllow()) {
+                        currentState = STATE.NUM_HEX;
+                        add();
+                    } else {
+                        currentState = STATE.READ;
+                        System.out.println("oct: " + lexBuffer);
+                        clean();
+                    }
+                    break;
+                case NUM_DEC:
+                    read();
+                    if(currentChar == null){
+                        currentState = STATE.ERROR;
+                    } else if (isDecAllow()) {
+                        add();
+                    } else if (currentChar == 'D' || currentChar == 'd') {
+                        currentState = STATE.NUM_DEC_FIN;
+                        add();
+                    } else if (currentChar == 'H' || currentChar == 'h') {
+                        currentState = STATE.NUM_HEX_FIN;
+                        add();
+                    } else if (isHexAllow()) {
+                        currentState = STATE.NUM_HEX;
+                        add();
+                    } else {
+                        currentState = STATE.READ;
+                        System.out.println("dec: " + lexBuffer);
+                        clean();
+                    }
+                    break;
+                case NUM_HEX:
+                    read();
+                    if(currentChar == null){
+                        currentState = STATE.ERROR;
+                    } else if (isHexAllow()) {
+                        currentState = STATE.NUM_HEX;
+                        add();
+                    } else if (currentChar == 'H' || currentChar == 'h') {
+                        currentState = STATE.NUM_HEX_FIN;
+                        add();
+                    } else {
+                        currentState = STATE.READ;
+                        System.out.println("hex: " + lexBuffer);
+                        clean();
+                    }
+                    break;
+                case IDENT:
+                    read();
+                    if(currentChar == null){
+                        currentState = STATE.ERROR;
+                    } else if (isLetter()) {
+                        add();
+                    } else if (isNumber()) {
+                        add();
+                    } else {
+                        currentState = STATE.READ;
+                        check(TABLE_SERVICE_ID);
+                        if (curLexId == -1){
+                            System.out.println("id: " + lexBuffer);
+                            put(TABLE_IDENTIFIERS_ID);
+                            write(TABLE_IDENTIFIERS_ID, curLexId);
+                        }
+                        else {
+                            System.out.println("serv: " + lexBuffer);
+                            write(TABLE_SERVICE_ID, curLexId);
+                        }
+                        clean();
+                    }
+                    break;
+                case NUM_BIN_FIN:
+                    read();
+                    if(currentChar == null){
+                        currentState = STATE.ERROR;
+                    } else if (currentChar == 'H' || currentChar == 'h') {
+                        currentState = STATE.NUM_HEX_FIN;
+                        add();
+                    } else if (isHexAllow()) {
+                        currentState = STATE.NUM_HEX;
+                        add();
+                    } else if (isLetter() || isNumber()) {
+                        currentState = STATE.ERROR;
+                        add();
+                    } else {
+                        currentState = STATE.READ;
+                        System.out.println("bin: " + lexBuffer);
+                        clean();
+                    }
+                    break;
+                case NUM_OCT_FIN:
+                    read();
+                    if(currentChar == null){
+                        currentState = STATE.ERROR;
+                    } else if (isLetter() || isNumber()) {
+                        currentState = STATE.ERROR;
+                    } else {
+                        currentState = STATE.READ;
+                        System.out.println("oct: " + lexBuffer);
+                        clean();
+                    }
+                    break;
+                case NUM_DEC_FIN:
+                    read();
+                    if(currentChar == null){
+                        currentState = STATE.ERROR;
+                    } else if (currentChar == 'H' || currentChar == 'h') {
+                        currentState = STATE.NUM_HEX_FIN;
+                        add();
+                    } else if (isHexAllow()) {
+                        currentState = STATE.NUM_HEX;
+                        add();
+                    } else if (isLetter() || isNumber()) {
+                        currentState = STATE.ERROR;
+                        add();
+                    } else {
+                        currentState = STATE.READ;
+                        System.out.println("bin: " + lexBuffer);
+                        clean();
+                    }
+                    break;
+                case NUM_HEX_FIN:
+                    read();
+                    if(currentChar == null){
+                        currentState = STATE.ERROR;
+                    } else if (isLetter() || isNumber()) {
+                        currentState = STATE.ERROR;
+                    } else {
+                        currentState = STATE.READ;
+                        System.out.println("oct: " + lexBuffer);
+                        clean();
+                    }
                     break;
                 default:
                     throw new Exception("can not resolve state '" + currentState.name() + "'");
