@@ -18,7 +18,6 @@ public class Lexer {
         NUM_OCT, NUM_OCT_FIN,
         NUM_DEC, NUM_DEC_FIN,
         NUM_HEX, NUM_HEX_FIN,
-        DELIMITER,
         COMMENT,
         END,
         ERROR,
@@ -121,6 +120,8 @@ public class Lexer {
             throw new Exception("table with id '" + tableId + "' read only");
         }
         lexTables.get(tableId).add(new Lex(lexTables.get(tableId).size(), tableId, lexBuffer));
+        curLexId = lexTables.get(tableId).size() - 1;
+        curTableId = tableId;
     }
 
     private void clean(){
@@ -165,6 +166,7 @@ public class Lexer {
                     read();
                     if(currentChar == null){
                         currentState = STATE.ERROR;
+
                     } else if (isBinAllow()) {
                         currentState = STATE.NUM_BIN;
                         clean();
@@ -182,8 +184,9 @@ public class Lexer {
                         clean();
                         add();
                     } else {
+
                         currentState = STATE.READ;
-                        System.out.println("del: " + lexBuffer);
+//                        System.out.println("del: " + lexBuffer);
                         clean();
                     }
                     break;
@@ -216,7 +219,9 @@ public class Lexer {
                         add();
                     } else {
                         currentState = STATE.READ;
-                        System.out.println("bin: " + lexBuffer);
+//                        System.out.println("bin: " + lexBuffer);
+                        put(TABLE_NUMBERS_ID);
+                        write(TABLE_NUMBERS_ID, curLexId);
                         clean();
                     }
                     break;
@@ -243,7 +248,9 @@ public class Lexer {
                         add();
                     } else {
                         currentState = STATE.READ;
-                        System.out.println("oct: " + lexBuffer);
+//                        System.out.println("oct: " + lexBuffer);
+                        put(TABLE_NUMBERS_ID);
+                        write(TABLE_NUMBERS_ID, curLexId);
                         clean();
                     }
                     break;
@@ -264,7 +271,9 @@ public class Lexer {
                         add();
                     } else {
                         currentState = STATE.READ;
-                        System.out.println("dec: " + lexBuffer);
+//                        System.out.println("dec: " + lexBuffer);
+                        put(TABLE_NUMBERS_ID);
+                        write(TABLE_NUMBERS_ID, curLexId);
                         clean();
                     }
                     break;
@@ -280,7 +289,9 @@ public class Lexer {
                         add();
                     } else {
                         currentState = STATE.READ;
-                        System.out.println("hex: " + lexBuffer);
+//                        System.out.println("hex: " + lexBuffer);
+                        put(TABLE_NUMBERS_ID);
+                        write(TABLE_NUMBERS_ID, curLexId);
                         clean();
                     }
                     break;
@@ -296,12 +307,12 @@ public class Lexer {
                         currentState = STATE.READ;
                         check(TABLE_SERVICE_ID);
                         if (curLexId == -1){
-                            System.out.println("id: " + lexBuffer);
+//                            System.out.println("id: " + lexBuffer);
                             put(TABLE_IDENTIFIERS_ID);
                             write(TABLE_IDENTIFIERS_ID, curLexId);
                         }
                         else {
-                            System.out.println("serv: " + lexBuffer);
+//                            System.out.println("serv: " + lexBuffer);
                             write(TABLE_SERVICE_ID, curLexId);
                         }
                         clean();
@@ -322,7 +333,9 @@ public class Lexer {
                         add();
                     } else {
                         currentState = STATE.READ;
-                        System.out.println("bin: " + lexBuffer);
+//                        System.out.println("bin: " + lexBuffer);
+                        put(TABLE_NUMBERS_ID);
+                        write(TABLE_NUMBERS_ID, curLexId);
                         clean();
                     }
                     break;
@@ -334,7 +347,9 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.READ;
-                        System.out.println("oct: " + lexBuffer);
+//                        System.out.println("oct: " + lexBuffer);
+                        put(TABLE_NUMBERS_ID);
+                        write(TABLE_NUMBERS_ID, curLexId);
                         clean();
                     }
                     break;
@@ -353,7 +368,9 @@ public class Lexer {
                         add();
                     } else {
                         currentState = STATE.READ;
-                        System.out.println("bin: " + lexBuffer);
+//                        System.out.println("bin: " + lexBuffer);
+                        put(TABLE_NUMBERS_ID);
+                        write(TABLE_NUMBERS_ID, curLexId);
                         clean();
                     }
                     break;
@@ -365,7 +382,9 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.READ;
-                        System.out.println("oct: " + lexBuffer);
+//                        System.out.println("oct: " + lexBuffer);
+                        put(TABLE_NUMBERS_ID);
+                        write(TABLE_NUMBERS_ID, curLexId);
                         clean();
                     }
                     break;
