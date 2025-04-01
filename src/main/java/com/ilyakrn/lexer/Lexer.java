@@ -18,6 +18,7 @@ public class Lexer {
         NUM_OCT, NUM_OCT_FIN,
         NUM_DEC, NUM_DEC_FIN,
         NUM_HEX, NUM_HEX_FIN,
+        NUM_REAL_POINT, NUM_REAL_ORDER_OR_HEX, NUM_REAL_ORDER, NUM_REAL_POINT_ORDER,
         COMMENT_START,
         COMMENT_END,
         MORE_THEN_EQUAL,
@@ -65,22 +66,21 @@ public class Lexer {
         lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(1, TABLE_DELIMITERS_ID, ";"));
         lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(2, TABLE_DELIMITERS_ID, ":"));
         lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(3, TABLE_DELIMITERS_ID, ","));
-        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(4, TABLE_DELIMITERS_ID, "."));
-        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(5, TABLE_DELIMITERS_ID, ">"));
-        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(6, TABLE_DELIMITERS_ID, "<"));
-        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(7, TABLE_DELIMITERS_ID, ">="));
-        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(8, TABLE_DELIMITERS_ID, "<="));
-        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(9, TABLE_DELIMITERS_ID, "="));
-        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(10, TABLE_DELIMITERS_ID, "+"));
-        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(11, TABLE_DELIMITERS_ID, "-"));
-        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(12, TABLE_DELIMITERS_ID, "*"));
-        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(13, TABLE_DELIMITERS_ID, "/"));
-        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(14, TABLE_DELIMITERS_ID, "or"));
-        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(15, TABLE_DELIMITERS_ID, "and"));
-        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(16, TABLE_DELIMITERS_ID, "not"));
-        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(17, TABLE_DELIMITERS_ID, "ass"));
-        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(18, TABLE_DELIMITERS_ID, "("));
-        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(19, TABLE_DELIMITERS_ID, ")"));
+        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(4, TABLE_DELIMITERS_ID, ">"));
+        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(5, TABLE_DELIMITERS_ID, "<"));
+        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(6, TABLE_DELIMITERS_ID, ">="));
+        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(7, TABLE_DELIMITERS_ID, "<="));
+        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(8, TABLE_DELIMITERS_ID, "="));
+        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(9, TABLE_DELIMITERS_ID, "+"));
+        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(10, TABLE_DELIMITERS_ID, "-"));
+        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(11, TABLE_DELIMITERS_ID, "*"));
+        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(12, TABLE_DELIMITERS_ID, "/"));
+        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(13, TABLE_DELIMITERS_ID, "or"));
+        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(14, TABLE_DELIMITERS_ID, "and"));
+        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(15, TABLE_DELIMITERS_ID, "not"));
+        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(16, TABLE_DELIMITERS_ID, "ass"));
+        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(17, TABLE_DELIMITERS_ID, "("));
+        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(18, TABLE_DELIMITERS_ID, ")"));
     }
 
     private boolean isBinAllow(){
@@ -190,34 +190,13 @@ public class Lexer {
                         currentState = STATE.IDENT;
                         clean();
                         add();
+                    } else if (currentChar == '.') {
+                        currentState = STATE.NUM_REAL_POINT;
+                        clean();
+                        add();
                     } else {
                         currentState = STATE.READ;
                         clean();
-////////////
-//                        add();
-//                        switch (currentChar){
-//                            case '/':
-//                                currentState = STATE.COMMENT_START;
-//                                break;
-//                            case '>':
-//                                currentState = STATE.MORE_THEN_EQUAL;
-//                                break;
-//                            case '<':
-//                                currentState = STATE.LESS_THEN_EQUAL;
-//                                break;
-//                            default:
-//                                currentState = STATE.READ;
-//                                check(TABLE_DELIMITERS_ID);
-//                                if(curLexId != -1){
-//                                    write(TABLE_DELIMITERS_ID, curLexId);
-//                                }
-//                                else{
-//                                    currentState = STATE.ERROR;
-//                                }
-//                                break;
-//                        }
-//                        clean();
-////////////
                     }
                     break;
                 case NUM_BIN:
@@ -226,6 +205,9 @@ public class Lexer {
                         message = "LEXER COMPLETE SUCCESSFUL";
                         currentState = STATE.ERROR;
                     } else if (isBinAllow()) {
+                        add();
+                    } else if (currentChar == '.') {
+                        currentState = STATE.NUM_REAL_POINT;
                         add();
                     } else if (currentChar == 'B' || currentChar == 'b') {
                         currentState = STATE.NUM_BIN_FIN;
@@ -265,6 +247,9 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else if (isOctAllow()) {
                         add();
+                    } else if (currentChar == '.') {
+                        currentState = STATE.NUM_REAL_POINT;
+                        add();
                     } else if (currentChar == 'O' || currentChar == 'o') {
                         currentState = STATE.NUM_OCT_FIN;
                         add();
@@ -296,6 +281,9 @@ public class Lexer {
                         message = "LEXER COMPLETE SUCCESSFUL";
                         currentState = STATE.ERROR;
                     } else if (isDecAllow()) {
+                        add();
+                    } else if (currentChar == '.') {
+                        currentState = STATE.NUM_REAL_POINT;
                         add();
                     } else if (currentChar == 'D' || currentChar == 'd') {
                         currentState = STATE.NUM_DEC_FIN;
@@ -396,92 +384,20 @@ public class Lexer {
                         clean();
                     }
                     break;
-////////////
-//                case COMMENT_START:
-//                    read();
-//                    if(currentChar == null){
-//                        message = "LEXER COMPLETE SUCCESSFUL";
-//                        currentState = STATE.ERROR;
-//                    } else if (currentChar == '*') {
-//                        currentState = STATE.COMMENT;
-//                    }
-//                    else {
-//                        currentState = STATE.READ;
-//                        check(TABLE_DELIMITERS_ID);
-//                        if(curLexId != -1) {
-//                            write(TABLE_DELIMITERS_ID, curLexId);
-//                        }
-//                        else {
-//                            currentState = STATE.ERROR;
-//                        }
-//                    }
-//                    clean();
-//                    break;
-//                case COMMENT:
-//                    read();
-//                    if(currentChar == null){
-//                        message = "LEXER COMPLETE SUCCESSFUL";
-//                        currentState = STATE.ERROR;
-//                    } else if (currentChar == '*') {
-//                        currentState = STATE.COMMENT_END;
-//                    }
-//                    else {
-//                    }
-//                    clean();
-//                    break;
-//                case COMMENT_END:
-//                    read();
-//                    if(currentChar == null){
-//                        message = "LEXER COMPLETE SUCCESSFUL";
-//                        currentState = STATE.ERROR;
-//                    } else if (currentChar == '/') {
-//                        currentState = STATE.READ;
-//                    }
-//                    else {
-//                    }
-//                    clean();
-//                    break;
-//                case MORE_THEN_EQUAL:
-//                    read();
-//                    if(currentChar == null){
-//                        message = "LEXER COMPLETE SUCCESSFUL";
-//                        currentState = STATE.ERROR;
-//                    } else if (currentChar == '=') {
-//                        write(TABLE_DELIMITERS_ID, 7);
-//                    }
-//                    else {
-//                        currentState = STATE.READ;
-//                        check(TABLE_DELIMITERS_ID);
-//                        if(curLexId != -1) {
-//                            write(TABLE_DELIMITERS_ID, curLexId);
-//                        }
-//                        else {
-//                            currentState = STATE.ERROR;
-//                        }
-//                    }
-//                    clean();
-//                    break;
-//                case LESS_THEN_EQUAL:
-//                    read();
-//                    if(currentChar == null){
-//                        message = "LEXER COMPLETE SUCCESSFUL";
-//                        currentState = STATE.ERROR;
-//                    } else if (currentChar == '=') {
-//                        write(TABLE_DELIMITERS_ID, 8);
-//                    }
-//                    else {
-//                        currentState = STATE.READ;
-//                        check(TABLE_DELIMITERS_ID);
-//                        if(curLexId != -1) {
-//                            write(TABLE_DELIMITERS_ID, curLexId);
-//                        }
-//                        else {
-//                            currentState = STATE.ERROR;
-//                        }
-//                    }
-//                    clean();
-//                    break;
-////////////
+                case NUM_REAL_POINT:
+                    read();
+                    if(currentChar == null){
+                        message = "LEXER COMPLETE SUCCESSFUL";
+                        currentState = STATE.ERROR;
+                    } else if (isNumber()) {
+                        add();
+                    } else {
+                        currentState = STATE.READ;
+                        put(TABLE_NUMBERS_ID);
+                        write(TABLE_NUMBERS_ID, curLexId);
+                        clean();
+                    }
+                    break;
                 default:
                     throw new Exception("can not resolve state '" + currentState.name() + "'");
 
