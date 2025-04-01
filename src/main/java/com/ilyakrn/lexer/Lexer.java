@@ -18,6 +18,10 @@ public class Lexer {
         NUM_OCT, NUM_OCT_FIN,
         NUM_DEC, NUM_DEC_FIN,
         NUM_HEX, NUM_HEX_FIN,
+        COMMENT_START,
+        COMMENT_END,
+        MORE_THEN_EQUAL,
+        LESS_THEN_EQUAL,
         COMMENT,
         END,
         ERROR,
@@ -153,6 +157,7 @@ public class Lexer {
         input.clear();
         lexBuffer = "";
         currentChar = null;
+        String message = "";
 
         char[] progChars = progText.toCharArray();
         for (int i = 0; i < progChars.length; i++) {
@@ -165,8 +170,10 @@ public class Lexer {
                 case READ:
                     read();
                     if(currentChar == null){
+                        message = "LEXER COMPLETE SUCCESSFUL";
                         currentState = STATE.ERROR;
-
+                    } else if (currentChar == ' ') {
+                        clean();
                     } else if (isBinAllow()) {
                         currentState = STATE.NUM_BIN;
                         clean();
@@ -184,15 +191,39 @@ public class Lexer {
                         clean();
                         add();
                     } else {
-
                         currentState = STATE.READ;
-//                        System.out.println("del: " + lexBuffer);
                         clean();
+////////////
+//                        add();
+//                        switch (currentChar){
+//                            case '/':
+//                                currentState = STATE.COMMENT_START;
+//                                break;
+//                            case '>':
+//                                currentState = STATE.MORE_THEN_EQUAL;
+//                                break;
+//                            case '<':
+//                                currentState = STATE.LESS_THEN_EQUAL;
+//                                break;
+//                            default:
+//                                currentState = STATE.READ;
+//                                check(TABLE_DELIMITERS_ID);
+//                                if(curLexId != -1){
+//                                    write(TABLE_DELIMITERS_ID, curLexId);
+//                                }
+//                                else{
+//                                    currentState = STATE.ERROR;
+//                                }
+//                                break;
+//                        }
+//                        clean();
+////////////
                     }
                     break;
                 case NUM_BIN:
                     read();
                     if(currentChar == null){
+                        message = "LEXER COMPLETE SUCCESSFUL";
                         currentState = STATE.ERROR;
                     } else if (isBinAllow()) {
                         add();
@@ -217,9 +248,11 @@ public class Lexer {
                     } else if (isHexAllow()) {
                         currentState = STATE.NUM_HEX;
                         add();
+                    } else if (isLetter()) {
+                        message = "UNRESOLVED CHAR '"+currentChar+"'";
+                        currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.READ;
-//                        System.out.println("bin: " + lexBuffer);
                         put(TABLE_NUMBERS_ID);
                         write(TABLE_NUMBERS_ID, curLexId);
                         clean();
@@ -228,6 +261,7 @@ public class Lexer {
                 case NUM_OCT:
                     read();
                     if(currentChar == null){
+                        message = "LEXER COMPLETE SUCCESSFUL";
                         currentState = STATE.ERROR;
                     } else if (isOctAllow()) {
                         add();
@@ -246,9 +280,11 @@ public class Lexer {
                     } else if (isHexAllow()) {
                         currentState = STATE.NUM_HEX;
                         add();
+                    } else if (isLetter()) {
+                        message = "UNRESOLVED CHAR '"+currentChar+"'";
+                        currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.READ;
-//                        System.out.println("oct: " + lexBuffer);
                         put(TABLE_NUMBERS_ID);
                         write(TABLE_NUMBERS_ID, curLexId);
                         clean();
@@ -257,6 +293,7 @@ public class Lexer {
                 case NUM_DEC:
                     read();
                     if(currentChar == null){
+                        message = "LEXER COMPLETE SUCCESSFUL";
                         currentState = STATE.ERROR;
                     } else if (isDecAllow()) {
                         add();
@@ -269,9 +306,11 @@ public class Lexer {
                     } else if (isHexAllow()) {
                         currentState = STATE.NUM_HEX;
                         add();
+                    } else if (isLetter()) {
+                        message = "UNRESOLVED CHAR '"+currentChar+"'";
+                        currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.READ;
-//                        System.out.println("dec: " + lexBuffer);
                         put(TABLE_NUMBERS_ID);
                         write(TABLE_NUMBERS_ID, curLexId);
                         clean();
@@ -280,16 +319,18 @@ public class Lexer {
                 case NUM_HEX:
                     read();
                     if(currentChar == null){
+                        message = "LEXER COMPLETE SUCCESSFUL";
                         currentState = STATE.ERROR;
                     } else if (isHexAllow()) {
-                        currentState = STATE.NUM_HEX;
                         add();
                     } else if (currentChar == 'H' || currentChar == 'h') {
                         currentState = STATE.NUM_HEX_FIN;
                         add();
+                    } else if (isLetter()) {
+                        message = "UNRESOLVED CHAR '"+currentChar+"'";
+                        currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.READ;
-//                        System.out.println("hex: " + lexBuffer);
                         put(TABLE_NUMBERS_ID);
                         write(TABLE_NUMBERS_ID, curLexId);
                         clean();
@@ -298,6 +339,7 @@ public class Lexer {
                 case IDENT:
                     read();
                     if(currentChar == null){
+                        message = "LEXER COMPLETE SUCCESSFUL";
                         currentState = STATE.ERROR;
                     } else if (isLetter()) {
                         add();
@@ -307,20 +349,20 @@ public class Lexer {
                         currentState = STATE.READ;
                         check(TABLE_SERVICE_ID);
                         if (curLexId == -1){
-//                            System.out.println("id: " + lexBuffer);
                             put(TABLE_IDENTIFIERS_ID);
                             write(TABLE_IDENTIFIERS_ID, curLexId);
                         }
                         else {
-//                            System.out.println("serv: " + lexBuffer);
                             write(TABLE_SERVICE_ID, curLexId);
                         }
                         clean();
                     }
                     break;
                 case NUM_BIN_FIN:
+                case NUM_DEC_FIN:
                     read();
                     if(currentChar == null){
+                        message = "LEXER COMPLETE SUCCESSFUL";
                         currentState = STATE.ERROR;
                     } else if (currentChar == 'H' || currentChar == 'h') {
                         currentState = STATE.NUM_HEX_FIN;
@@ -329,65 +371,117 @@ public class Lexer {
                         currentState = STATE.NUM_HEX;
                         add();
                     } else if (isLetter() || isNumber()) {
+                        message = "UNRESOLVED CHAR '"+currentChar+"'";
                         currentState = STATE.ERROR;
-                        add();
                     } else {
                         currentState = STATE.READ;
-//                        System.out.println("bin: " + lexBuffer);
                         put(TABLE_NUMBERS_ID);
                         write(TABLE_NUMBERS_ID, curLexId);
                         clean();
                     }
                     break;
                 case NUM_OCT_FIN:
-                    read();
-                    if(currentChar == null){
-                        currentState = STATE.ERROR;
-                    } else if (isLetter() || isNumber()) {
-                        currentState = STATE.ERROR;
-                    } else {
-                        currentState = STATE.READ;
-//                        System.out.println("oct: " + lexBuffer);
-                        put(TABLE_NUMBERS_ID);
-                        write(TABLE_NUMBERS_ID, curLexId);
-                        clean();
-                    }
-                    break;
-                case NUM_DEC_FIN:
-                    read();
-                    if(currentChar == null){
-                        currentState = STATE.ERROR;
-                    } else if (currentChar == 'H' || currentChar == 'h') {
-                        currentState = STATE.NUM_HEX_FIN;
-                        add();
-                    } else if (isHexAllow()) {
-                        currentState = STATE.NUM_HEX;
-                        add();
-                    } else if (isLetter() || isNumber()) {
-                        currentState = STATE.ERROR;
-                        add();
-                    } else {
-                        currentState = STATE.READ;
-//                        System.out.println("bin: " + lexBuffer);
-                        put(TABLE_NUMBERS_ID);
-                        write(TABLE_NUMBERS_ID, curLexId);
-                        clean();
-                    }
-                    break;
                 case NUM_HEX_FIN:
                     read();
                     if(currentChar == null){
+                        message = "LEXER COMPLETE SUCCESSFUL";
                         currentState = STATE.ERROR;
                     } else if (isLetter() || isNumber()) {
+                        message = "UNRESOLVED CHAR '"+currentChar+"'";
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.READ;
-//                        System.out.println("oct: " + lexBuffer);
                         put(TABLE_NUMBERS_ID);
                         write(TABLE_NUMBERS_ID, curLexId);
                         clean();
                     }
                     break;
+////////////
+//                case COMMENT_START:
+//                    read();
+//                    if(currentChar == null){
+//                        message = "LEXER COMPLETE SUCCESSFUL";
+//                        currentState = STATE.ERROR;
+//                    } else if (currentChar == '*') {
+//                        currentState = STATE.COMMENT;
+//                    }
+//                    else {
+//                        currentState = STATE.READ;
+//                        check(TABLE_DELIMITERS_ID);
+//                        if(curLexId != -1) {
+//                            write(TABLE_DELIMITERS_ID, curLexId);
+//                        }
+//                        else {
+//                            currentState = STATE.ERROR;
+//                        }
+//                    }
+//                    clean();
+//                    break;
+//                case COMMENT:
+//                    read();
+//                    if(currentChar == null){
+//                        message = "LEXER COMPLETE SUCCESSFUL";
+//                        currentState = STATE.ERROR;
+//                    } else if (currentChar == '*') {
+//                        currentState = STATE.COMMENT_END;
+//                    }
+//                    else {
+//                    }
+//                    clean();
+//                    break;
+//                case COMMENT_END:
+//                    read();
+//                    if(currentChar == null){
+//                        message = "LEXER COMPLETE SUCCESSFUL";
+//                        currentState = STATE.ERROR;
+//                    } else if (currentChar == '/') {
+//                        currentState = STATE.READ;
+//                    }
+//                    else {
+//                    }
+//                    clean();
+//                    break;
+//                case MORE_THEN_EQUAL:
+//                    read();
+//                    if(currentChar == null){
+//                        message = "LEXER COMPLETE SUCCESSFUL";
+//                        currentState = STATE.ERROR;
+//                    } else if (currentChar == '=') {
+//                        write(TABLE_DELIMITERS_ID, 7);
+//                    }
+//                    else {
+//                        currentState = STATE.READ;
+//                        check(TABLE_DELIMITERS_ID);
+//                        if(curLexId != -1) {
+//                            write(TABLE_DELIMITERS_ID, curLexId);
+//                        }
+//                        else {
+//                            currentState = STATE.ERROR;
+//                        }
+//                    }
+//                    clean();
+//                    break;
+//                case LESS_THEN_EQUAL:
+//                    read();
+//                    if(currentChar == null){
+//                        message = "LEXER COMPLETE SUCCESSFUL";
+//                        currentState = STATE.ERROR;
+//                    } else if (currentChar == '=') {
+//                        write(TABLE_DELIMITERS_ID, 8);
+//                    }
+//                    else {
+//                        currentState = STATE.READ;
+//                        check(TABLE_DELIMITERS_ID);
+//                        if(curLexId != -1) {
+//                            write(TABLE_DELIMITERS_ID, curLexId);
+//                        }
+//                        else {
+//                            currentState = STATE.ERROR;
+//                        }
+//                    }
+//                    clean();
+//                    break;
+////////////
                 default:
                     throw new Exception("can not resolve state '" + currentState.name() + "'");
 
@@ -395,7 +489,7 @@ public class Lexer {
 
         }
 
-        return new LexerOutput(lexTables, lexemesList);
+        return new LexerOutput(lexTables, lexemesList, currentState == STATE.ERROR, message);
     }
 
 
