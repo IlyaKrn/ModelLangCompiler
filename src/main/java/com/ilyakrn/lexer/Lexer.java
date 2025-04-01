@@ -19,11 +19,14 @@ public class Lexer {
         NUM_DEC, NUM_DEC_FIN,
         NUM_HEX, NUM_HEX_FIN,
         NUM_REAL_POINT, NUM_REAL_POINT_ORDER_START_1, NUM_REAL_POINT_ORDER_START_2, NUM_REAL_POINT_ORDER,
+        NUM_REAL_ORDER_OR_HEX, NUM_REAL_ORDER,
+        /////////
         COMMENT_START,
         COMMENT_END,
         MORE_THEN_EQUAL,
         LESS_THEN_EQUAL,
         COMMENT,
+        /////////
         END,
         ERROR,
     }
@@ -209,6 +212,9 @@ public class Lexer {
                     } else if (currentChar == '.') {
                         currentState = STATE.NUM_REAL_POINT;
                         add();
+                    } else if (currentChar == 'E' || currentChar == 'e') {
+                        currentState = STATE.NUM_REAL_ORDER_OR_HEX;
+                        add();
                     } else if (currentChar == 'B' || currentChar == 'b') {
                         currentState = STATE.NUM_BIN_FIN;
                         add();
@@ -250,6 +256,9 @@ public class Lexer {
                     } else if (currentChar == '.') {
                         currentState = STATE.NUM_REAL_POINT;
                         add();
+                    } else if (currentChar == 'E' || currentChar == 'e') {
+                        currentState = STATE.NUM_REAL_ORDER_OR_HEX;
+                        add();
                     } else if (currentChar == 'O' || currentChar == 'o') {
                         currentState = STATE.NUM_OCT_FIN;
                         add();
@@ -284,6 +293,9 @@ public class Lexer {
                         add();
                     } else if (currentChar == '.') {
                         currentState = STATE.NUM_REAL_POINT;
+                        add();
+                    } else if (currentChar == 'E' || currentChar == 'e') {
+                        currentState = STATE.NUM_REAL_ORDER_OR_HEX;
                         add();
                     } else if (currentChar == 'D' || currentChar == 'd') {
                         currentState = STATE.NUM_DEC_FIN;
@@ -451,6 +463,48 @@ public class Lexer {
                     } else if (isNumber()) {
                         add();
                     } else if (isLetter() || currentChar == '.') {
+                        message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                        currentState = STATE.ERROR;
+                    } else {
+                        currentState = STATE.READ;
+                        put(TABLE_NUMBERS_ID);
+                        write(TABLE_NUMBERS_ID, curLexId);
+                        clean();
+                    }
+                    break;
+                case NUM_REAL_ORDER_OR_HEX:
+                    read();
+                    if(currentChar == null){
+                        message = "LEXER COMPLETE SUCCESSFUL";
+                        currentState = STATE.ERROR;
+                    } else if (isNumber()) {
+                        add();
+                    } else if (isHexAllow()) {
+                        currentState = STATE.NUM_HEX;
+                    } else if (currentChar == '+' || currentChar == '-') {
+                        currentState = STATE.NUM_REAL_ORDER;
+                        add();
+                    } else if (currentChar == 'H' || currentChar == 'h') {
+                        currentState = STATE.NUM_HEX_FIN;
+                        add();
+                    } else if (isLetter() || currentChar == '.') {
+                        message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                        currentState = STATE.ERROR;
+                    } else {
+                        currentState = STATE.READ;
+                        put(TABLE_NUMBERS_ID);
+                        write(TABLE_NUMBERS_ID, curLexId);
+                        clean();
+                    }
+                    break;
+                case NUM_REAL_ORDER:
+                    read();
+                    if(currentChar == null){
+                        message = "LEXER COMPLETE SUCCESSFUL";
+                        currentState = STATE.ERROR;
+                    } else if (isNumber()) {
+                        add();
+                    } else if (isLetter() || currentChar == '.' || currentChar == '+' || currentChar == '-') {
                         message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
                         currentState = STATE.ERROR;
                     } else {
