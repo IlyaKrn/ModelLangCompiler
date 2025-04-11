@@ -764,12 +764,12 @@ public class Lexer {
                     break;
                 case COMMENT:
                     read();
+                    add();
                     if(currentChar == null){
                         message = "LEXER COMPLETE SUCCESSFUL";
                         currentState = STATE.ERROR;
                     } else if(currentChar == '*') {
                         currentState = STATE.COMMENT_END;
-                        clean();
                     }
                     break;
                 case COMMENT_END:
@@ -780,6 +780,10 @@ public class Lexer {
                     } else if(currentChar == '/') {
                         currentState = STATE.READ;
                         clean();
+                    }
+                    else {
+                        currentState = STATE.COMMENT;
+                        add();
                     }
                     break;
                 default:
