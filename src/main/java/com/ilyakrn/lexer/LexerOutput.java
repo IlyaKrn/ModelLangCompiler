@@ -28,7 +28,18 @@ public final class LexerOutput {
         }
         sb.append("==================LEXEMES==================\n");
         for (LexAndTable lex : lexemesList) {
-            sb.append(String.format("%s\t%s\t\t%s\t\n", lex.getLexId(), lex.getTableId(), lexTables.get(lex.getTableId()).get(lex.getLexId()).getLexeme()));
+            String tableName = "(UNDEFINED)";
+            if(lex.getTableId() == Lexer.TABLE_SERVICE_ID) tableName = "(SERVICE)";
+            if(lex.getTableId() == Lexer.TABLE_DELIMITERS_ID) tableName = "(DELIM)";
+            if(lex.getTableId() == Lexer.TABLE_IDENTIFIERS_ID) tableName = "(IDENT)";
+            if(lex.getTableId() == Lexer.TABLE_NUMBERS_ID) tableName = "(NUMBER)";
+            String lexemeText = lexTables.get(lex.getTableId()).get(lex.getLexId()).getLexeme();
+            switch (lexemeText){
+                case "\n":
+                    lexemeText = "\\n";
+                    break;
+            }
+            sb.append(String.format("%s\t%s %s\t\t\t\t%s\t\n", lex.getLexId(), lex.getTableId(), tableName, lexemeText));
         }
         sb.append(isError ? "===================ERROR===================\n" : "====================OK=====================\n");
         if(!message.isEmpty()){
