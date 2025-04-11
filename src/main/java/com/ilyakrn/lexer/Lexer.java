@@ -21,11 +21,9 @@ public class Lexer {
         NUM_REAL_POINT_1, NUM_REAL_POINT_2, NUM_REAL_POINT_ORDER_START_1, NUM_REAL_POINT_ORDER_START_2, NUM_REAL_POINT_ORDER,
         NUM_REAL_ORDER_OR_HEX, NUM_REAL_ORDER,
         DELIMITER,
-        /////////
         COMMENT,
         COMMENT_START,
         COMMENT_END,
-        /////////
         MORE_THEN_EQUAL,
         LESS_THEN_EQUAL,
         END,
@@ -85,6 +83,8 @@ public class Lexer {
         lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(16, TABLE_DELIMITERS_ID, "ass"));
         lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(17, TABLE_DELIMITERS_ID, "("));
         lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(18, TABLE_DELIMITERS_ID, ")"));
+        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(19, TABLE_DELIMITERS_ID, "{"));
+        lexTables.get(TABLE_DELIMITERS_ID).add(new Lex(20, TABLE_DELIMITERS_ID, "}"));
     }
 
     private boolean isBinAllow(){
@@ -567,7 +567,12 @@ public class Lexer {
                             message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
                         }
                         else {
-                            currentState = STATE.READ;
+                            if (currentChar == '}'){
+                                currentState = STATE.END;
+                            }
+                            else {
+                                currentState = STATE.READ;
+                            }
                             write(TABLE_DELIMITERS_ID, curLexId);
                             clean();
                         }
