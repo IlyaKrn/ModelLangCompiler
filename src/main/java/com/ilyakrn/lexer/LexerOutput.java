@@ -20,11 +20,18 @@ public final class LexerOutput {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("LexerOutput:\nTables:\n");
+        int tableId = 0;
         for (ArrayList<Lex> table : lexTables) {
-            sb.append("===================TABLE===================\n");
+            String tableName = "(UNDEFINED)";
+            if(tableId == Lexer.TABLE_SERVICE_ID) tableName = "(SERVICE)";
+            if(tableId == Lexer.TABLE_DELIMITERS_ID) tableName = "(DELIM)";
+            if(tableId == Lexer.TABLE_IDENTIFIERS_ID) tableName = "(IDENT)";
+            if(tableId == Lexer.TABLE_NUMBERS_ID) tableName = "(NUMBER)";
+            sb.append(String.format("==============TABLE %s==============\n", tableName));
             for (Lex lex : table) {
                 sb.append(String.format("%s\t%s\t%s\t\n", lex.getId(), lex.getTableId(), lex.getLexeme()));
             }
+            tableId++;
         }
         sb.append("==================LEXEMES==================\n");
         for (LexAndTable lex : lexemesList) {
