@@ -127,9 +127,21 @@ public class Lexer {
         if(tableId == TABLE_SERVICE_ID || tableId == TABLE_DELIMITERS_ID){
             throw new Exception("table with id '" + tableId + "' read only");
         }
-        lexTables.get(tableId).add(new Lex(lexTables.get(tableId).size(), tableId, lexBuffer));
-        curLexId = lexTables.get(tableId).size() - 1;
         curTableId = tableId;
+        int findId = -1;
+        for (Lex lex : lexTables.get(tableId)) {
+            if(lex.getLexeme().equals(lexBuffer)){
+                findId = lex.getId();
+                break;
+            }
+        }
+        if(findId == -1){
+            lexTables.get(tableId).add(new Lex(lexTables.get(tableId).size(), tableId, lexBuffer));
+            curLexId = lexTables.get(tableId).size() - 1;
+        }
+        else {
+            curLexId = findId;
+        }
     }
 
     private void clean(){

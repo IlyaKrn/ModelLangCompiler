@@ -3,7 +3,7 @@
  }}*/
 
 {
-    int n, fact;
+    int n, fact, i;
     read(n);
     fact ass 1;
     for i ass 2 to n do
