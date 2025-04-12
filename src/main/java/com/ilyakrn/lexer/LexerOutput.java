@@ -21,6 +21,22 @@ public final class LexerOutput {
         this.message = message;
     }
 
+    public ArrayList<ArrayList<Lex>> getLexTables() {
+        return lexTables;
+    }
+
+    public boolean isError() {
+        return isError;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public ArrayList<LexAndTable> getLexemesList() {
+        return lexemesList;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

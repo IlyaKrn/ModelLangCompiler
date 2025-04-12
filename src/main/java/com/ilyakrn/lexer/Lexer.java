@@ -181,7 +181,7 @@ public class Lexer {
                 case READ:
                     read();
                     if(currentChar == null){
-                        message = "LEXER COMPLETE SUCCESSFUL";
+                        message = "PROGRAM END REACHED BEFORE '}'";
                         currentState = STATE.ERROR;
                     } else if (currentChar == ' ') {
                         clean();
@@ -214,7 +214,7 @@ public class Lexer {
                 case NUM_BIN:
                     read();
                     if(currentChar == null){
-                        message = "LEXER COMPLETE SUCCESSFUL";
+                        message = "PROGRAM END REACHED BEFORE '}'";
                         currentState = STATE.ERROR;
                     } else if (isBinAllow()) {
                         add();
@@ -259,7 +259,7 @@ public class Lexer {
                 case NUM_OCT:
                     read();
                     if(currentChar == null){
-                        message = "LEXER COMPLETE SUCCESSFUL";
+                        message = "PROGRAM END REACHED BEFORE '}'";
                         currentState = STATE.ERROR;
                     } else if (isOctAllow()) {
                         add();
@@ -298,7 +298,7 @@ public class Lexer {
                 case NUM_DEC:
                     read();
                     if(currentChar == null){
-                        message = "LEXER COMPLETE SUCCESSFUL";
+                        message = "PROGRAM END REACHED BEFORE '}'";
                         currentState = STATE.ERROR;
                     } else if (isDecAllow()) {
                         add();
@@ -331,7 +331,7 @@ public class Lexer {
                 case NUM_HEX:
                     read();
                     if(currentChar == null){
-                        message = "LEXER COMPLETE SUCCESSFUL";
+                        message = "PROGRAM END REACHED BEFORE '}'";
                         currentState = STATE.ERROR;
                     } else if (isHexAllow()) {
                         add();
@@ -346,7 +346,7 @@ public class Lexer {
                 case IDENT:
                     read();
                     if(currentChar == null){
-                        message = "LEXER COMPLETE SUCCESSFUL";
+                        message = "PROGRAM END REACHED BEFORE '}'";
                         currentState = STATE.ERROR;
                     } else if (isLetter()) {
                         add();
@@ -376,7 +376,7 @@ public class Lexer {
                 case NUM_DEC_FIN:
                     read();
                     if(currentChar == null){
-                        message = "LEXER COMPLETE SUCCESSFUL";
+                        message = "PROGRAM END REACHED BEFORE '}'";
                         currentState = STATE.ERROR;
                     } else if (currentChar == 'H' || currentChar == 'h') {
                         currentState = STATE.NUM_HEX_FIN;
@@ -399,7 +399,7 @@ public class Lexer {
                 case NUM_HEX_FIN:
                     read();
                     if(currentChar == null){
-                        message = "LEXER COMPLETE SUCCESSFUL";
+                        message = "PROGRAM END REACHED BEFORE '}'";
                         currentState = STATE.ERROR;
                     } else if (isLetter() || isNumber()) {
                         message = "UNRESOLVED CHAR '"+currentChar+"'";
@@ -415,7 +415,7 @@ public class Lexer {
                 case NUM_REAL_POINT_1:
                     read();
                     if(currentChar == null){
-                        message = "LEXER COMPLETE SUCCESSFUL";
+                        message = "PROGRAM END REACHED BEFORE '}'";
                         currentState = STATE.ERROR;
                     } else if (isNumber()) {
                         currentState = STATE.NUM_REAL_POINT_2;
@@ -428,7 +428,7 @@ public class Lexer {
                 case NUM_REAL_POINT_2:
                     read();
                     if(currentChar == null){
-                        message = "LEXER COMPLETE SUCCESSFUL";
+                        message = "PROGRAM END REACHED BEFORE '}'";
                         currentState = STATE.ERROR;
                     } else if (isNumber()) {
                         add();
@@ -490,7 +490,7 @@ public class Lexer {
                 case NUM_REAL_POINT_ORDER:
                     read();
                     if(currentChar == null){
-                        message = "LEXER COMPLETE SUCCESSFUL";
+                        message = "PROGRAM END REACHED BEFORE '}'";
                         currentState = STATE.ERROR;
                     } else if (isNumber()) {
                         add();
@@ -508,7 +508,7 @@ public class Lexer {
                 case NUM_REAL_ORDER_OR_HEX:
                     read();
                     if(currentChar == null){
-                        message = "LEXER COMPLETE SUCCESSFUL";
+                        message = "PROGRAM END REACHED BEFORE '}'";
                         currentState = STATE.ERROR;
                     } else if (isNumber()) {
                         add();
@@ -534,7 +534,7 @@ public class Lexer {
                 case NUM_REAL_ORDER:
                     read();
                     if(currentChar == null){
-                        message = "LEXER COMPLETE SUCCESSFUL";
+                        message = "PROGRAM END REACHED BEFORE '}'";
                         currentState = STATE.ERROR;
                     } else if (isNumber()) {
                         add();
@@ -551,7 +551,7 @@ public class Lexer {
                     break;
                 case DELIMITER:
                     if(currentChar == null){
-                        message = "LEXER COMPLETE SUCCESSFUL";
+                        message = "PROGRAM END REACHED BEFORE '}'";
                         currentState = STATE.ERROR;
                     }
                     else if(currentChar == ' '){
@@ -589,7 +589,7 @@ public class Lexer {
                 case LESS_THEN_EQUAL:
                     read();
                     if(currentChar == null){
-                        message = "LEXER COMPLETE SUCCESSFUL";
+                        message = "PROGRAM END REACHED BEFORE '}'";
                         currentState = STATE.ERROR;
                     } else if(currentChar == '='){
                         add();
@@ -679,7 +679,7 @@ public class Lexer {
                 case COMMENT_START:
                     read();
                     if(currentChar == null){
-                        message = "LEXER COMPLETE SUCCESSFUL";
+                        message = "PROGRAM END REACHED BEFORE '}'";
                         currentState = STATE.ERROR;
                     } else if(currentChar == ' '){
                         currentState = STATE.READ;
@@ -773,7 +773,7 @@ public class Lexer {
                     read();
                     add();
                     if(currentChar == null){
-                        message = "LEXER COMPLETE SUCCESSFUL";
+                        message = "PROGRAM END REACHED BEFORE '}'";
                         currentState = STATE.ERROR;
                     } else if(currentChar == '*') {
                         currentState = STATE.COMMENT_END;
@@ -782,7 +782,7 @@ public class Lexer {
                 case COMMENT_END:
                     read();
                     if(currentChar == null){
-                        message = "LEXER COMPLETE SUCCESSFUL";
+                        message = "PROGRAM END REACHED BEFORE '}'";
                         currentState = STATE.ERROR;
                     } else if(currentChar == '/') {
                         currentState = STATE.READ;

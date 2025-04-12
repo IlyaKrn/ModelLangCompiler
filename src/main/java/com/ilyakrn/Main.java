@@ -2,6 +2,7 @@ package com.ilyakrn;
 
 import com.ilyakrn.lexer.Lexer;
 import com.ilyakrn.lexer.LexerOutput;
+import com.ilyakrn.parser.Parser;
 
 import java.io.File;
 import java.io.FileReader;
@@ -16,10 +17,9 @@ public class Main {
         String prog = new String(Files.readAllBytes(Paths.get("/home/ilyakrn/IdeaProjects/ModelLangCompiler/main.prog")), StandardCharsets.UTF_8);
 
         Lexer lexer = new Lexer();
-        System.out.println("===========================================");
-        LexerOutput output = lexer.analyze(prog);
-        System.out.print(output);
-        System.out.println("===========================================");
+        Parser parser = new Parser();
+        LexerOutput lexerOutput = lexer.analyze(prog);
+        parser.analyze(lexerOutput);
 
     }
 }
