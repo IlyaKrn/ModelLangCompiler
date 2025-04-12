@@ -4,6 +4,11 @@ import java.util.ArrayList;
 
 public final class LexerOutput {
 
+    public static final int TABLE_SERVICE_ID = 0;
+    public static final int TABLE_DELIMITERS_ID = 1;
+    public static final int TABLE_IDENTIFIERS_ID = 2;
+    public static final int TABLE_NUMBERS_ID = 3;
+
     private final ArrayList<ArrayList<Lex>> lexTables;
     private final ArrayList<LexAndTable> lexemesList;
     private final boolean isError;
@@ -23,10 +28,10 @@ public final class LexerOutput {
         int tableId = 0;
         for (ArrayList<Lex> table : lexTables) {
             String tableName = "(UNDEFINED)";
-            if(tableId == Lexer.TABLE_SERVICE_ID) tableName = "(SERVICE)";
-            if(tableId == Lexer.TABLE_DELIMITERS_ID) tableName = "(DELIM)";
-            if(tableId == Lexer.TABLE_IDENTIFIERS_ID) tableName = "(IDENT)";
-            if(tableId == Lexer.TABLE_NUMBERS_ID) tableName = "(NUMBER)";
+            if(tableId == TABLE_SERVICE_ID) tableName = "(SERVICE)";
+            if(tableId == TABLE_DELIMITERS_ID) tableName = "(DELIM)";
+            if(tableId == TABLE_IDENTIFIERS_ID) tableName = "(IDENT)";
+            if(tableId == TABLE_NUMBERS_ID) tableName = "(NUMBER)";
             sb.append(String.format("==============TABLE %s==============\n", tableName));
             for (Lex lex : table) {
                 sb.append(String.format("%s\t%s\t%s\t\n", lex.getId(), lex.getTableId(), lex.getLexeme()));
@@ -36,10 +41,10 @@ public final class LexerOutput {
         sb.append("==================LEXEMES==================\n");
         for (LexAndTable lex : lexemesList) {
             String tableName = "(UNDEFINED)";
-            if(lex.getTableId() == Lexer.TABLE_SERVICE_ID) tableName = "(SERVICE)";
-            if(lex.getTableId() == Lexer.TABLE_DELIMITERS_ID) tableName = "(DELIM)";
-            if(lex.getTableId() == Lexer.TABLE_IDENTIFIERS_ID) tableName = "(IDENT)";
-            if(lex.getTableId() == Lexer.TABLE_NUMBERS_ID) tableName = "(NUMBER)";
+            if(lex.getTableId() == TABLE_SERVICE_ID) tableName = "(SERVICE)";
+            if(lex.getTableId() == TABLE_DELIMITERS_ID) tableName = "(DELIM)";
+            if(lex.getTableId() == TABLE_IDENTIFIERS_ID) tableName = "(IDENT)";
+            if(lex.getTableId() == TABLE_NUMBERS_ID) tableName = "(NUMBER)";
             String lexemeText = lexTables.get(lex.getTableId()).get(lex.getLexId()).getLexeme();
             switch (lexemeText){
                 case "\n":
