@@ -47,11 +47,11 @@ public class Parser {
     }
 
     private void OGO(){
-        if(!currentLexemeIs("<>") &
-                !currentLexemeIs("=") &
-                !currentLexemeIs("<") &
-                !currentLexemeIs("<=") &
-                !currentLexemeIs(">") &
+        if(!currentLexemeIs("<>") &&
+                !currentLexemeIs("=") &&
+                !currentLexemeIs("<") &&
+                !currentLexemeIs("<=") &&
+                !currentLexemeIs(">") &&
                 !currentLexemeIs(">=")
         ){
             error();
@@ -139,7 +139,9 @@ public class Parser {
             read();
         else
             error();
-
+        do {
+            //(<описание> | <оператор>)
+        } while (currentLexemeIs(";"));
 
         if(!currentLexemeIs("}"))
             error();
