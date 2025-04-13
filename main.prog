@@ -9,4 +9,6 @@
     for i ass 2 to n do
         fact ass fact * i;
     write(fact);
+    bool e;
+    if e <> 23 then read(e);
 }

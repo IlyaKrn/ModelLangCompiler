@@ -65,21 +65,22 @@ public class Lexer {
         lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(3, LexerOutput.TABLE_DELIMITERS_ID, ","));
         lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(4, LexerOutput.TABLE_DELIMITERS_ID, ">"));
         lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(5, LexerOutput.TABLE_DELIMITERS_ID, "<"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(6, LexerOutput.TABLE_DELIMITERS_ID, ">="));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(7, LexerOutput.TABLE_DELIMITERS_ID, "<="));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(8, LexerOutput.TABLE_DELIMITERS_ID, "="));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(9, LexerOutput.TABLE_DELIMITERS_ID, "+"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(10, LexerOutput.TABLE_DELIMITERS_ID, "-"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(11, LexerOutput.TABLE_DELIMITERS_ID, "*"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(12, LexerOutput.TABLE_DELIMITERS_ID, "/"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(13, LexerOutput.TABLE_DELIMITERS_ID, "or"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(14, LexerOutput.TABLE_DELIMITERS_ID, "and"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(15, LexerOutput.TABLE_DELIMITERS_ID, "not"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(16, LexerOutput.TABLE_DELIMITERS_ID, "ass"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(17, LexerOutput.TABLE_DELIMITERS_ID, "("));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(18, LexerOutput.TABLE_DELIMITERS_ID, ")"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(19, LexerOutput.TABLE_DELIMITERS_ID, "{"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(20, LexerOutput.TABLE_DELIMITERS_ID, "}"));
+        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(6, LexerOutput.TABLE_DELIMITERS_ID, "<>"));
+        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(7, LexerOutput.TABLE_DELIMITERS_ID, ">="));
+        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(8, LexerOutput.TABLE_DELIMITERS_ID, "<="));
+        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(9, LexerOutput.TABLE_DELIMITERS_ID, "="));
+        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(10, LexerOutput.TABLE_DELIMITERS_ID, "+"));
+        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(11, LexerOutput.TABLE_DELIMITERS_ID, "-"));
+        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(12, LexerOutput.TABLE_DELIMITERS_ID, "*"));
+        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(13, LexerOutput.TABLE_DELIMITERS_ID, "/"));
+        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(14, LexerOutput.TABLE_DELIMITERS_ID, "or"));
+        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(15, LexerOutput.TABLE_DELIMITERS_ID, "and"));
+        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(16, LexerOutput.TABLE_DELIMITERS_ID, "not"));
+        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(17, LexerOutput.TABLE_DELIMITERS_ID, "ass"));
+        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(18, LexerOutput.TABLE_DELIMITERS_ID, "("));
+        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(19, LexerOutput.TABLE_DELIMITERS_ID, ")"));
+        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(20, LexerOutput.TABLE_DELIMITERS_ID, "{"));
+        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(21, LexerOutput.TABLE_DELIMITERS_ID, "}"));
     }
 
     private boolean isBinAllow(){
@@ -592,6 +593,18 @@ public class Lexer {
                         message = "PROGRAM END REACHED BEFORE '}'";
                         currentState = STATE.ERROR;
                     } else if(currentChar == '='){
+                        add();
+                        check(LexerOutput.TABLE_DELIMITERS_ID);
+                        if(curLexId == -1){
+                            currentState = STATE.ERROR;
+                            message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                        }
+                        else {
+                            currentState = STATE.READ;
+                            write(LexerOutput.TABLE_DELIMITERS_ID, curLexId);
+                            clean();
+                        }
+                    } else if(currentChar == '>'){
                         add();
                         check(LexerOutput.TABLE_DELIMITERS_ID);
                         if(curLexId == -1){
