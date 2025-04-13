@@ -56,6 +56,9 @@ public class Parser {
         ){
             error();
         }
+        else {
+            read();
+        }
     }
     private void OGS(){
         if(!currentLexemeIs("+") &&
@@ -63,6 +66,9 @@ public class Parser {
                 !currentLexemeIs("or")
         ){
             error();
+        }
+        else {
+            read();
         }
     }
     private void OGU(){
@@ -72,6 +78,9 @@ public class Parser {
         ){
             error();
         }
+        else {
+            read();
+        }
     }
     private void LC(){
         if(!currentLexemeIs("true") &&
@@ -79,11 +88,17 @@ public class Parser {
         ){
             error();
         }
+        else {
+            read();
+        }
     }
     private void UO(){
         if(!currentLexemeIs("not")
         ) {
             error();
+        }
+        else {
+            read();
         }
     }
     private void T(){
@@ -93,11 +108,11 @@ public class Parser {
         ) {
             error();
         }
+        else {
+            read();
+        }
     }
     private void ENTER(){
-
-    }
-    private void DESC(){
 
     }
     private void MNOZH(){
@@ -132,6 +147,21 @@ public class Parser {
     }
     private void OPERATOR(){
 
+    }
+    private void DESC(){
+        T();
+        if(isIdentifier())
+            read();
+        else
+            error();
+        while (currentLexemeIs(",")){
+            read();
+            if(isIdentifier())
+                read();
+            else
+                error();
+        }
+        read();
     }
     private void PROG(){
         read();
@@ -172,7 +202,6 @@ public class Parser {
 
 
 //          <ввода>::= read (<идентификатор> {, <идентификатор> })
-//          <описание>::= <тип> <идентификатор> { , <идентификатор> }
 //          <множитель>::= (<идентификатор> | <число> | <логическая_константа> | <унарная_операция> <множитель> | <выражение>)
 //          <слагаемое>::= <множитель> {<операции_группы_умножения> <множитель>}
 //          <операнд>::= <слагаемое> {<операции_группы_сложения> <слагаемое>}
