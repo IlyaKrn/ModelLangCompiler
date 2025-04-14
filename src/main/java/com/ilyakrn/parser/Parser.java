@@ -28,14 +28,6 @@ public class Parser {
         return currentLex.getLexeme().equals(lexeme);
     }
 
-    private boolean isIdentifier(){
-        return currentLex.getTableId() == LexerOutput.TABLE_IDENTIFIERS_ID;
-    }
-
-    private boolean isNumber(){
-        return currentLex.getTableId() == LexerOutput.TABLE_NUMBERS_ID;
-    }
-
     public boolean analyze(LexerOutput lexerOutput) {
         currentLex = null;
         input.clear();
@@ -44,6 +36,13 @@ public class Parser {
         }
 
         return false;
+    }
+
+    private boolean isIdentifier(){
+        return currentLex.getTableId() == LexerOutput.TABLE_IDENTIFIERS_ID;
+    }
+    private boolean isNumber(){
+        return currentLex.getTableId() == LexerOutput.TABLE_NUMBERS_ID;
     }
 
     private void OGO(){
@@ -100,6 +99,7 @@ public class Parser {
             error();
     }
 
+/// ////////////////////////
     private void MNOZH(){}
     private void EXPR(){}
     private void SLAG(){}
@@ -208,6 +208,7 @@ public class Parser {
         if(!currentLexemeIs("}"))
             error();
     }
+/// ////////////////////////
 
 
 
@@ -241,13 +242,18 @@ public class Parser {
 //          <выражение>::= <операнд>{<операции_группы_отношения> <операнд>}
 //          <слагаемое>::= <множитель> {<операции_группы_умножения> <множитель>}
 //          <операнд>::= <слагаемое> {<операции_группы_сложения> <слагаемое>}
+
+//          <ввода>::= read (<идентификатор> {, <идентификатор> })
+//          <вывода>::= write (<выражение> {, <выражение> })
 //          <составной>::= <оператор> { ( : | перевод строки) <оператор> }
+//          <присваивания>::= <идентификатор> ass <выражение>
 //          <условный>::= if <выражение> then <оператор> [ else <оператор>]
 //          <фиксированного_цикла>::= for <присваивания> to <выражение> do <оператор>
 //          <условного_цикла>::= while <выражение> do <оператор>
+
 //          <оператор>::= (<составной> | <присваивания> | <условный> | <фиксированного_цикла> | <условного_цикла> | <ввода> | <вывода>)
+//          <описание>::= <тип> <идентификатор> { , <идентификатор> }
+
 //          <программа>::= { {/ (<описание> | <оператор>) ; /} }
-
-
 
 }
