@@ -9,132 +9,291 @@ import java.util.Queue;
 
 public class Parser {
 
-    private Lex currentLex;
-    private final Queue<Lex> input;
-
-    public Parser() {
-        this.input = new LinkedList<>();
-    }
-
-    private void read(){
-        currentLex = input.poll();
-    }
-
-    private void error(){
-        System.out.println("PARSER DETECTED ERROR");
-    }
-
-    private boolean currentLexemeIs(String lexeme){
-        return currentLex.getLexeme().equals(lexeme);
-    }
-
     public boolean analyze(LexerOutput lexerOutput) {
-        currentLex = null;
-        input.clear();
+        Queue<Lex> input = new LinkedList<>();
         for (LexAndTable lexAndTable : lexerOutput.getLexemesList()){
             input.add(lexerOutput.getLexTables().get(lexAndTable.getTableId()).get(lexAndTable.getLexId()));
         }
 
-        return false;
+        System.out.println(lexerOutput);
+        for (int i = 0; i < 56; i++) {
+            int res = EXPR(input);
+            System.out.print(res + "\t");
+            for (int j = 0; j < res + 1; j++) {
+                System.out.print(input.poll().getLexeme() + " ");
+            }
+        }
+
+        return true;//result == input.size();
     }
 
-    private boolean isIdentifier(){
-        return currentLex.getTableId() == LexerOutput.TABLE_IDENTIFIERS_ID;
-    }
-    private boolean isNumber(){
-        return currentLex.getTableId() == LexerOutput.TABLE_NUMBERS_ID;
-    }
-
-    private void OGO(){
-        if(currentLexemeIs("<>") ||
-                currentLexemeIs("=") ||
-                currentLexemeIs("<") ||
-                currentLexemeIs("<=") ||
-                currentLexemeIs(">") ||
-                currentLexemeIs(">=")
-        )
-            read();
+    private int nextLexemeIs(Queue<Lex> input, String lexeme){
+        Queue<Lex> tempInput = new LinkedList<>(input);
+        if (tempInput.isEmpty())
+            return -1;
         else
-            error();
+            return tempInput.poll().getLexeme().equals(lexeme) ? 1 : -1;
     }
-    private void OGS(){
-        if(currentLexemeIs("+") ||
-                currentLexemeIs("-") ||
-                currentLexemeIs("or")
-        )
-            read();
+    private int isIdentifier(Queue<Lex> input){
+        Queue<Lex> tempInput = new LinkedList<>(input);
+        if (tempInput.isEmpty())
+            return -1;
         else
-            error();
+            return tempInput.poll().getTableId() == LexerOutput.TABLE_IDENTIFIERS_ID ? 1 : -1;
     }
-    private void OGU(){
-        if(currentLexemeIs("*") ||
-                currentLexemeIs("/") ||
-                currentLexemeIs("and")
-        )
-            read();
+    private int isNumber(Queue<Lex> input) {
+        Queue<Lex> tempInput = new LinkedList<>(input);
+        if (tempInput.isEmpty())
+            return -1;
         else
-            error();
-    }
-    private void LC(){
-        if(currentLexemeIs("true") ||
-                currentLexemeIs("false")
-        )
-            read();
-        else
-            error();
-    }
-    private void UO(){
-        if(currentLexemeIs("not"))
-            read();
-        else
-            error();
-    }
-    private void T(){
-        if(currentLexemeIs("int") ||
-                currentLexemeIs("float") ||
-                currentLexemeIs("bool")
-        )
-            read();
-        else
-            error();
+            return tempInput.poll().getTableId() == LexerOutput.TABLE_NUMBERS_ID ? 1 : -1;
     }
 
-/// ////////////////////////
-    private void MNOZH(){}
-    private void EXPR(){}
-    private void SLAG(){}
-    private void OPRND(){}
+    private int OGO(Queue<Lex> input){
+        Queue<Lex> tempInput = new LinkedList<>(input);
+        if (tempInput.isEmpty())
+            return -1;
+        else {
+            String lexeme = tempInput.poll().getLexeme();
+            if(lexeme.equals("<>") ||
+                    lexeme.equals("=") ||
+                    lexeme.equals("<") ||
+                    lexeme.equals("<=") ||
+                    lexeme.equals(">") ||
+                    lexeme.equals(">=")
+            )
+                return 1;
+            else
+                return -1;
+        }
+    }
+    private int OGS(Queue<Lex> input){
+        Queue<Lex> tempInput = new LinkedList<>(input);
+        if (tempInput.isEmpty())
+            return -1;
+        else {
+            String lexeme = tempInput.poll().getLexeme();
+            if(lexeme.equals("+") ||
+                    lexeme.equals("-") ||
+                    lexeme.equals("or")
+            )
+                return 1;
+            else
+                return -1;
+        }
+    }
+    private int OGU(Queue<Lex> input){
+        Queue<Lex> tempInput = new LinkedList<>(input);
+        if (tempInput.isEmpty())
+            return -1;
+        else {
+            String lexeme = tempInput.poll().getLexeme();
+            if(lexeme.equals("*") ||
+                    lexeme.equals("/") ||
+                    lexeme.equals("and")
+            )
+                return 1;
+            else
+                return -1;
+        }
+    }
+    private int LC(Queue<Lex> input){
+        Queue<Lex> tempInput = new LinkedList<>(input);
+        if (tempInput.isEmpty())
+            return -1;
+        else {
+            String lexeme = tempInput.poll().getLexeme();
+            if(lexeme.equals("true") ||
+                    lexeme.equals("false")
+            )
+                return 1;
+            else
+                return -1;
+        }
+    }
+    private int UO(Queue<Lex> input){
+        Queue<Lex> tempInput = new LinkedList<>(input);
+        if (tempInput.isEmpty())
+            return -1;
+        else {
+            String lexeme = tempInput.poll().getLexeme();
+            if(lexeme.equals("not"))
+                return 1;
+            else
+                return -1;
+        }
+    }
+    private int T(Queue<Lex> input){
+        Queue<Lex> tempInput = new LinkedList<>(input);
+        if (tempInput.isEmpty())
+            return -1;
+        else {
+            String lexeme = tempInput.poll().getLexeme();
+            if(lexeme.equals("int") ||
+                    lexeme.equals("float") ||
+                    lexeme.equals("bool")
+            )
+                return 1;
+            else
+                return -1;
+        }
+    }
 
-    private void ENTER(){
-        if(currentLexemeIs("read"))
-            read();
-        else
-            error();
+    private int EXPR(Queue<Lex> input){
+        Queue<Lex> tempInput = new LinkedList<>(input);
+        int result = OPRND(tempInput);
+        if (result != -1){
+            for (int i = 0; i < result; i++) {
+                tempInput.poll();
+            }
+            int result1 = OGO(tempInput);
+            while (result1 != -1) {
+                for (int i = 0; i < result1; i++) {
+                    tempInput.poll();
+                }
+                result += result1;
+                int result2 = OPRND(tempInput);
+                if (result2 != -1) {
+                    for (int i = 0; i < result2; i++) {
+                        tempInput.poll();
+                    }
+                    result1 = OGO(tempInput);
+                    result += result2;
+                }
+                else {
+                    result = -1;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+    private int SLAG(Queue<Lex> input){
+        Queue<Lex> tempInput = new LinkedList<>(input);
+        int result = MNOZH(tempInput);
+        if (result != -1){
+            for (int i = 0; i < result; i++) {
+                tempInput.poll();
+            }
+            int result1 = OGU(tempInput);
+            while (result1 != -1) {
+                for (int i = 0; i < result1; i++) {
+                    tempInput.poll();
+                }
+                result += result1;
+                int result2 = MNOZH(tempInput);
+                if (result2 != -1) {
+                    for (int i = 0; i < result2; i++) {
+                        tempInput.poll();
+                    }
+                    result1 = OGU(tempInput);
+                    result += result2;
+                }
+                else {
+                    result = -1;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+    private int OPRND(Queue<Lex> input){
+        Queue<Lex> tempInput = new LinkedList<>(input);
+        int result = SLAG(tempInput);
+        if (result != -1){
+            for (int i = 0; i < result; i++) {
+                tempInput.poll();
+            }
+            int result1 = OGS(tempInput);
+            while (result1 != -1) {
+                for (int i = 0; i < result1; i++) {
+                    tempInput.poll();
+                }
+                result += result1;
+                int result2 = SLAG(tempInput);
+                if (result2 != -1) {
+                    for (int i = 0; i < result2; i++) {
+                        tempInput.poll();
+                    }
+                    result1 = OGS(tempInput);
+                    result += result2;
+                }
+                else {
+                    result = -1;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+    private int MNOZH(Queue<Lex> input){
+        Queue<Lex> tempInput = new LinkedList<>(input);
+        int result = -1;
 
-        if(currentLexemeIs("("))
-            read();
-        else
-            error();
+        if (result == -1)
+            result = isIdentifier(tempInput);
+        if (result == -1)
+            result = isNumber(tempInput);
+        if (result == -1)
+            result = LC(tempInput);
+        if (result == -1) {
+            result = UO(tempInput);
+            if (result != -1) {
+                for (int i = 0; i < result; i++) {
+                    tempInput.poll();
+                }
+                int result1 = MNOZH(tempInput);
+                result = result1 == -1 ? -1 : result + result1;
+            }
+        }
+        if (result == -1)
+            result = EXPR(tempInput);
 
-        if(isIdentifier())
-            read();
-        else
-            error();
+        return result;
+    }
 
-        while (currentLexemeIs(",")){
-            read();
+/*
+    /// ////////////////////////
+    private int ENTER(Queue<Lex> input){
+        if (input.isEmpty())
+            return -1;
+        else {
+            String lexeme = input.poll().getLexeme();
+            if(lexeme.equals("not"))
+                return 1;
+            else
+                return -1;
+
+            if(currentLexemeIs("read"))
+                read();
+            else
+                error();
+
+            if(currentLexemeIs("("))
+                read();
+            else
+                error();
+
             if(isIdentifier())
                 read();
             else
                 error();
-        }
 
-        if(currentLexemeIs(")"))
-            read();
-        else
-            error();
+            while (currentLexemeIs(",")){
+                read();
+                if(isIdentifier())
+                    read();
+                else
+                    error();
+            }
+
+            if(currentLexemeIs(")"))
+                read();
+            else
+                error();
+        }
     }
-    private void OUT(){
+    private int OUT(Queue<Lex> input){
         if(currentLexemeIs("write"))
             read();
         else
@@ -157,8 +316,8 @@ public class Parser {
         else
             error();
     }
-    private void SOSTAV(){}
-    private void PRISV(){
+    private int SOSTAV(Queue<Lex> input){}
+    private int PRISV(Queue<Lex> input){
         if(isIdentifier())
             read();
         else
@@ -171,12 +330,12 @@ public class Parser {
 
         EXPR();
     }
-    private void USLOV(){}
-    private void FIXLOOP(){}
-    private void USLLOOP(){}
+    private int USLOV(Queue<Lex> input){}
+    private int FIXLOOP(Queue<Lex> input){}
+    private int USLLOOP(Queue<Lex> input){}
 
-    private void OPERATOR(){}
-    private void DESC(){
+    private int OPERATOR(Queue<Lex> input){}
+    private int DESC(Queue<Lex> input){
         T();
 
         if(isIdentifier())
@@ -193,7 +352,7 @@ public class Parser {
         }
     }
 
-    private void PROG(){
+    private int PROG(Queue<Lex> input){
         read();
 
         if(currentLexemeIs("{"))
@@ -208,7 +367,7 @@ public class Parser {
         if(!currentLexemeIs("}"))
             error();
     }
-/// ////////////////////////
+/// ///////////////////////*/
 
 
 
@@ -219,13 +378,13 @@ public class Parser {
 /**   UO                                унарная_операция                               **/
 /**   T                                 тип                                            **/
 
-/*    MNOZH                             множитель                                           **/
-/*    EXPR                              выражение                                           **/
-/*    SLAG                              слагаемое                                           **/
-/*    OPRND                             операнд                                             **/
+/**   MNOZH                             множитель                                           **/
+/**   EXPR                              выражение                                           **/
+/**   SLAG                              слагаемое                                           **/
+/**   OPRND                             операнд                                             **/
 
-/**   ENTER                             ввода                                               **/
-/**   OUT                               вывода                                              **/
+/*    ENTER                             ввода                                               **/
+/*    OUT                               вывода                                              **/
 /*    SOSTAV                            составной                                           **/
 /*    PRISV                             присваивания                                        **/
 /*    USLOV                             условный                                            **/
@@ -233,7 +392,7 @@ public class Parser {
 /*    USLLOOP                           условного_цикла                                     **/
 
 /*    OPERATOR                          оператор                                            **/
-/**   DESC                              описание                                            **/
+/*    DESC                              описание                                            **/
 
 /*    PROG                              программа                                           **/
 
