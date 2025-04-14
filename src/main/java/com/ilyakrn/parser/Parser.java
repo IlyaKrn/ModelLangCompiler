@@ -246,8 +246,6 @@ public class Parser {
                 result = result1 == -1 ? -1 : result + result1;
             }
         }
-        if (result == -1)
-            result = EXPR(tempInput);
 
         return result;
     }
