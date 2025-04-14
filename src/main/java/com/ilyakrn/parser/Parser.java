@@ -47,113 +47,80 @@ public class Parser {
     }
 
     private void OGO(){
-        if(!currentLexemeIs("<>") &&
-                !currentLexemeIs("=") &&
-                !currentLexemeIs("<") &&
-                !currentLexemeIs("<=") &&
-                !currentLexemeIs(">") &&
-                !currentLexemeIs(">=")
-        ){
-            error();
-        }
-        else {
+        if(currentLexemeIs("<>") ||
+                currentLexemeIs("=") ||
+                currentLexemeIs("<") ||
+                currentLexemeIs("<=") ||
+                currentLexemeIs(">") ||
+                currentLexemeIs(">=")
+        )
             read();
-        }
+        else
+            error();
     }
     private void OGS(){
-        if(!currentLexemeIs("+") &&
-                !currentLexemeIs("-") &&
-                !currentLexemeIs("or")
-        ){
-            error();
-        }
-        else {
+        if(currentLexemeIs("+") ||
+                currentLexemeIs("-") ||
+                currentLexemeIs("or")
+        )
             read();
-        }
+        else
+            error();
     }
     private void OGU(){
-        if(!currentLexemeIs("*") &&
-                !currentLexemeIs("/") &&
-                !currentLexemeIs("and")
-        ){
-            error();
-        }
-        else {
+        if(currentLexemeIs("*") ||
+                currentLexemeIs("/") ||
+                currentLexemeIs("and")
+        )
             read();
-        }
+        else
+            error();
     }
     private void LC(){
-        if(!currentLexemeIs("true") &&
-                !currentLexemeIs("false")
-        ){
-            error();
-        }
-        else {
+        if(currentLexemeIs("true") ||
+                currentLexemeIs("false")
+        )
             read();
-        }
+        else
+            error();
     }
     private void UO(){
-        if(!currentLexemeIs("not")
-        ) {
-            error();
-        }
-        else {
+        if(currentLexemeIs("not"))
             read();
-        }
+        else
+            error();
     }
     private void T(){
-        if(!currentLexemeIs("int") &&
-                !currentLexemeIs("float") &&
-                !currentLexemeIs("bool")
-        ) {
-            error();
-        }
-        else {
+        if(currentLexemeIs("int") ||
+                currentLexemeIs("float") ||
+                currentLexemeIs("bool")
+        )
             read();
-        }
+        else
+            error();
     }
+
+    private void MNOZH(){}
+    private void EXPR(){}
+    private void SLAG(){}
+    private void OPRND(){}
+
     private void ENTER(){
+        if(currentLexemeIs("read"))
+            read();
+        else
+            error();
 
-    }
-    private void MNOZH(){
+        if(currentLexemeIs("("))
+            read();
+        else
+            error();
 
-    }
-    private void SLAG(){
-
-    }
-    private void OPRND(){
-
-    }
-    private void EXPR(){
-
-    }
-    private void SOSTAV(){
-
-    }
-    private void PRISV(){
-
-    }
-    private void USLOV(){
-
-    }
-    private void FIXLOOP(){
-
-    }
-    private void USLLOOP(){
-
-    }
-    private void OUT(){
-
-    }
-    private void OPERATOR(){
-
-    }
-    private void DESC(){
-        T();
         if(isIdentifier())
             read();
         else
             error();
+
         while (currentLexemeIs(",")){
             read();
             if(isIdentifier())
@@ -161,14 +128,79 @@ public class Parser {
             else
                 error();
         }
-        read();
+
+        if(currentLexemeIs(")"))
+            read();
+        else
+            error();
     }
+    private void OUT(){
+        if(currentLexemeIs("write"))
+            read();
+        else
+            error();
+
+        if(currentLexemeIs("("))
+            read();
+        else
+            error();
+
+        EXPR();
+
+        while (currentLexemeIs(",")){
+            read();
+            EXPR();
+        }
+
+        if(currentLexemeIs(")"))
+            read();
+        else
+            error();
+    }
+    private void SOSTAV(){}
+    private void PRISV(){
+        if(isIdentifier())
+            read();
+        else
+            error();
+
+        if(currentLexemeIs("ass"))
+            read();
+        else
+            error();
+
+        EXPR();
+    }
+    private void USLOV(){}
+    private void FIXLOOP(){}
+    private void USLLOOP(){}
+
+    private void OPERATOR(){}
+    private void DESC(){
+        T();
+
+        if(isIdentifier())
+            read();
+        else
+            error();
+
+        while (currentLexemeIs(",")){
+            read();
+            if(isIdentifier())
+                read();
+            else
+                error();
+        }
+    }
+
     private void PROG(){
         read();
+
         if(currentLexemeIs("{"))
             read();
         else
             error();
+
         do {
             //(<описание> | <оператор>)
         } while (currentLexemeIs(";"));
@@ -179,39 +211,40 @@ public class Parser {
 
 
 
-// OGO                               операции_группы_отношения
-// OGS                               операции_группы_сложения
-// OGU                               операции_группы_умножения
-// LC                                логическая_константа
-// UO                                унарная_операция
-// T                                 тип
-// ENTER                             ввода
-// DESC                              описание
-// MNOZH                             множитель
-// SLAG                              слагаемое
-// OPRND                             операнд
-// EXPR                              выражение
-// SOSTAV                            составной
-// PRISV                             присваивания
-// USLOV                             условный
-// FIXLOOP                           фиксированного_цикла
-// USLLOOP                           условного_цикла
-// OUT                               вывода
-// OPERATOR                          оператор
-// PROG                              программа
+/**   OGO                               операции_группы_отношения                      **/
+/**   OGS                               операции_группы_сложения                       **/
+/**   OGU                               операции_группы_умножения                      **/
+/**   LC                                логическая_константа                           **/
+/**   UO                                унарная_операция                               **/
+/**   T                                 тип                                            **/
+
+/*    MNOZH                             множитель                                           **/
+/*    EXPR                              выражение                                           **/
+/*    SLAG                              слагаемое                                           **/
+/*    OPRND                             операнд                                             **/
+
+/**   ENTER                             ввода                                               **/
+/**   OUT                               вывода                                              **/
+/*    SOSTAV                            составной                                           **/
+/*    PRISV                             присваивания                                        **/
+/*    USLOV                             условный                                            **/
+/*    FIXLOOP                           фиксированного_цикла                                **/
+/*    USLLOOP                           условного_цикла                                     **/
+
+/*    OPERATOR                          оператор                                            **/
+/**   DESC                              описание                                            **/
+
+/*    PROG                              программа                                           **/
 
 
-//          <ввода>::= read (<идентификатор> {, <идентификатор> })
 //          <множитель>::= (<идентификатор> | <число> | <логическая_константа> | <унарная_операция> <множитель> | <выражение>)
+//          <выражение>::= <операнд>{<операции_группы_отношения> <операнд>}
 //          <слагаемое>::= <множитель> {<операции_группы_умножения> <множитель>}
 //          <операнд>::= <слагаемое> {<операции_группы_сложения> <слагаемое>}
-//          <выражение>::= <операнд>{<операции_группы_отношения> <операнд>}
 //          <составной>::= <оператор> { ( : | перевод строки) <оператор> }
-//          <присваивания>::= <идентификатор> ass <выражение>
 //          <условный>::= if <выражение> then <оператор> [ else <оператор>]
 //          <фиксированного_цикла>::= for <присваивания> to <выражение> do <оператор>
 //          <условного_цикла>::= while <выражение> do <оператор>
-//          <вывода>::= write (<выражение> {, <выражение> })
 //          <оператор>::= (<составной> | <присваивания> | <условный> | <фиксированного_цикла> | <условного_цикла> | <ввода> | <вывода>)
 //          <программа>::= { {/ (<описание> | <оператор>) ; /} }
 
