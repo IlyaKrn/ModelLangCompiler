@@ -588,7 +588,7 @@ public class Parser {
                 int result2 = OPERATOR(tempInput);
                 if (result2 == -1 && !isLn)
                     return -1;
-                else if (isLn){
+                else if (result2 == -1 && isLn){
                     result -= result1;
                     break;
                 }
