@@ -19,7 +19,18 @@ public class Main {
         Lexer lexer = new Lexer();
         Parser parser = new Parser();
         LexerOutput lexerOutput = lexer.analyze(prog);
-        parser.analyze(lexerOutput);
+        if(lexerOutput.isError()){
+            System.out.println("LEXER COMPLETE FAILED: " + lexerOutput.getMessage());
+            return;
+        }
+        System.out.println("LEXER COMPLETE SUCCESSFUL");
+
+        boolean parserOutput = parser.analyze(lexerOutput);
+        if(!parserOutput){
+            System.out.println("PARSER FAILED: NO MESSAGE");
+            return;
+        }
+        System.out.println("PARSER COMPLETE SUCCESSFUL");
 
     }
 }

@@ -14,11 +14,7 @@ public class Parser {
         for (LexAndTable lexAndTable : lexerOutput.getLexemesList()){
             input.add(lexerOutput.getLexTables().get(lexAndTable.getTableId()).get(lexAndTable.getLexId()));
         }
-
-        System.out.println(lexerOutput);
         int result = PROG(input);
-        System.out.print(result + "\t");
-
         return result == input.size();
     }
 
