@@ -16,15 +16,10 @@ public class Parser {
         }
 
         System.out.println(lexerOutput);
-        for (int i = 0; i < 56; i++) {
-            int res = USLOV(input);
-            System.out.print(res + "\t");
-            for (int j = 0; j < res + 1; j++) {
-                System.out.print(input.poll().getLexeme() + " ");
-            }
-        }
+        int result = PROG(input);
+        System.out.print(result + "\t");
 
-        return true;//result == input.size();
+        return result == input.size();
     }
 
     private int nextLexemeIs(Queue<Lex> input, String lexeme){
@@ -246,11 +241,12 @@ public class Parser {
                 result = result1 == -1 ? -1 : result + result1;
             }
         }
+//        if (result == -1)
+//            result = MNOZH(tempInput);
 
         return result;
     }
 
-    /// ////////////////////////
     private int ENTER(Queue<Lex> input){
         Queue<Lex> tempInput = new LinkedList<>(input);
 
@@ -435,43 +431,227 @@ public class Parser {
         }
         return result;
     }
-    /*
-    private int FIXLOOP(Queue<Lex> input){}
-    private int USLLOOP(Queue<Lex> input){}
-    private int SOSTAV(Queue<Lex> input){}
-
-   */ private int OPERATOR(Queue<Lex> input){return PRISV(input);} /*
-    private int DESC(Queue<Lex> input){
-        T();
-
-        if(isIdentifier())
-            read();
-        else
-            error();
-
-        while (currentLexemeIs(",")){
-            read();
-            if(isIdentifier())
-                read();
-            else
-                error();
+    private int FIXLOOP(Queue<Lex> input){
+        Queue<Lex> tempInput = new LinkedList<>(input);
+        int result = nextLexemeIs(tempInput, "for");
+        if (result == -1)
+            return -1;
+        for (int i = 0; i < result; i++) {
+            tempInput.poll();
         }
+
+        int result1 = PRISV(tempInput);
+        if (result1 == -1)
+            return -1;
+        for (int i = 0; i < result1; i++) {
+            tempInput.poll();
+        }
+        result += result1;
+
+        int result2 = nextLexemeIs(tempInput, "to");
+        if (result2 == -1)
+            return -1;
+        for (int i = 0; i < result2; i++) {
+            tempInput.poll();
+        }
+        result += result2;
+
+        int result3 = EXPR(tempInput);
+        if (result3 == -1)
+            return -1;
+        for (int i = 0; i < result3; i++) {
+            tempInput.poll();
+        }
+        result += result3;
+
+        int result4 = nextLexemeIs(tempInput, "do");
+        if (result4 == -1)
+            return -1;
+        for (int i = 0; i < result4; i++) {
+            tempInput.poll();
+        }
+        result += result4;
+
+        int result5 = OPERATOR(tempInput);
+        if (result5 == -1)
+            return -1;
+        for (int i = 0; i < result5; i++) {
+            tempInput.poll();
+        }
+        result += result5;
+        return result;
+    }
+    private int USLLOOP(Queue<Lex> input){
+        Queue<Lex> tempInput = new LinkedList<>(input);
+        int result = nextLexemeIs(tempInput, "while");
+        if (result == -1)
+            return -1;
+        for (int i = 0; i < result; i++) {
+            tempInput.poll();
+        }
+
+        int result1 = EXPR(tempInput);
+        if (result1 == -1)
+            return -1;
+        for (int i = 0; i < result1; i++) {
+            tempInput.poll();
+        }
+        result += result1;
+
+        int result2 = nextLexemeIs(tempInput, "do");
+        if (result2 == -1)
+            return -1;
+        for (int i = 0; i < result2; i++) {
+            tempInput.poll();
+        }
+        result += result2;
+
+        int result3 = OPERATOR(tempInput);
+        if (result3 == -1)
+            return -1;
+        for (int i = 0; i < result3; i++) {
+            tempInput.poll();
+        }
+        result += result3;
+
+        return result;
+    }
+    private int SOSTAV(Queue<Lex> input){
+        Queue<Lex> tempInput = new LinkedList<>(input);
+        int result = OPERATOR(tempInput);
+        if (result == -1)
+            return -1;
+        for (int i = 0; i < result; i++) {
+            tempInput.poll();
+        }
+
+        int result1 = nextLexemeIs(tempInput, ":");
+        if (result1 == -1)
+            result1 = nextLexemeIs(tempInput, "\n");
+
+        while (result1 != -1) {
+            for (int i = 0; i < result1; i++) {
+                tempInput.poll();
+            }
+            result += result1;
+            int result2 = OPERATOR(tempInput);
+            if (result2 == -1)
+                return -1;
+            for (int i = 0; i < result2; i++) {
+                tempInput.poll();
+            }
+            result += result2;
+
+            result1 = nextLexemeIs(tempInput, ":");
+            if (result1 == -1)
+                result1 = nextLexemeIs(tempInput, "\n");
+        }
+
+        return result;
     }
 
+    private int OPERATOR(Queue<Lex> input){
+        Queue<Lex> tempInput = new LinkedList<>(input);
+        int result = -1;
+
+        if (result == -1)
+            result = PRISV(tempInput);
+        if (result == -1)
+            result = USLOV(tempInput);
+        if (result == -1)
+            result = FIXLOOP(tempInput);
+        if (result == -1)
+            result = USLLOOP(tempInput);
+        if (result == -1)
+            result = ENTER(tempInput);
+        if (result == -1)
+            result = OUT(tempInput);
+//        if (result == -1)
+//            result = SOSTAV(tempInput);
+
+        return result;
+    }
+
+    private int DESC(Queue<Lex> input){
+        Queue<Lex> tempInput = new LinkedList<>(input);
+        int result = T(tempInput);
+        if (result == -1)
+            return -1;
+        for (int i = 0; i < result; i++) {
+            tempInput.poll();
+        }
+
+        int result1 = isIdentifier(tempInput);
+        if (result1 == -1)
+            return -1;
+        for (int i = 0; i < result1; i++) {
+            tempInput.poll();
+        }
+        result += result1;
+
+        int result2 = nextLexemeIs(tempInput, ",");
+
+        while (result2 != -1) {
+            for (int i = 0; i < result2; i++) {
+                tempInput.poll();
+            }
+            result += result1;
+            int result3 = isIdentifier(tempInput);
+            if (result3 == -1)
+                return -1;
+            for (int i = 0; i < result3; i++) {
+                tempInput.poll();
+            }
+            result += result3;
+
+            result2 = nextLexemeIs(tempInput, ",");
+        }
+
+        return result;
+    }
     private int PROG(Queue<Lex> input){
-        read();
+        Queue<Lex> tempInput = new LinkedList<>(input);
+        int result = nextLexemeIs(tempInput, "{");
+        if (result == -1)
+            return -1;
+        for (int i = 0; i < result; i++) {
+            tempInput.poll();
+        }
 
-        if(currentLexemeIs("{"))
-            read();
-        else
-            error();
 
-        do {
-            //(<описание> | <оператор>)
-        } while (currentLexemeIs(";"));
+        int result1 = DESC(tempInput);
+        if (result1 == -1)
+            result1 = OPERATOR(tempInput);
+        if (result1 == -1)
+            return -1;
+        for (int i = 0; i < result1; i++) {
+            tempInput.poll();
+        }
+        result += result1;
 
-        if(!currentLexemeIs("}"))
-            error();
+        int result2 = nextLexemeIs(tempInput, ";");
+        if (result2 == -1)
+            return -1;
+
+        int result3 = DESC(tempInput);
+        if (result3 == -1)
+            result3 = OPERATOR(tempInput);
+
+        while (result3 != -1) {
+            for (int i = 0; i < result3; i++) {
+                tempInput.poll();
+            }
+            result += result3;
+
+            int result4 = nextLexemeIs(tempInput, ";");
+            if (result4 == -1)
+                return -1;
+
+            result3 = DESC(tempInput);
+            if (result3 == -1)
+                result3 = OPERATOR(tempInput);
+        }
+        return result;
     }
 /// ///////////////////////*/
 
@@ -493,14 +673,14 @@ public class Parser {
 /**   OUT                               вывода                                              **/
 /**   PRISV                             присваивания                                        **/
 /**   USLOV                             условный                                            **/
-/*    FIXLOOP                           фиксированного_цикла                                **/
-/*    USLLOOP                           условного_цикла                                     **/
-/*    SOSTAV                            составной                                           **/
+/**   FIXLOOP                           фиксированного_цикла                                **/
+/**   USLLOOP                           условного_цикла                                     **/
+/**   SOSTAV                            составной                                           **/
 
-/*    OPERATOR                          оператор                                            **/
-/*    DESC                              описание                                            **/
+/**   OPERATOR                          оператор                                            **/
+/**   DESC                              описание                                            **/
 
-/*    PROG                              программа                                           **/
+/**   PROG                              программа                                           **/
 
 
 //          <операнд>::= <слагаемое> {<операции_группы_сложения> <слагаемое>}
