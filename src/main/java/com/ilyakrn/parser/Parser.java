@@ -632,6 +632,10 @@ public class Parser {
         int result2 = nextLexemeIs(tempInput, ";");
         if (result2 == -1)
             return -1;
+        for (int i = 0; i < result2; i++) {
+            tempInput.poll();
+        }
+        result += result2;
 
         int result3 = DESC(tempInput);
         if (result3 == -1)
@@ -646,11 +650,23 @@ public class Parser {
             int result4 = nextLexemeIs(tempInput, ";");
             if (result4 == -1)
                 return -1;
+            for (int i = 0; i < result4; i++) {
+                tempInput.poll();
+            }
+            result += result4;
 
             result3 = DESC(tempInput);
             if (result3 == -1)
                 result3 = OPERATOR(tempInput);
         }
+
+        int result5 = nextLexemeIs(tempInput, "}");
+        if (result5 == -1)
+            return -1;
+        for (int i = 0; i < result5; i++) {
+            tempInput.poll();
+        }
+        result += result5;
         return result;
     }
 /// ///////////////////////*/
