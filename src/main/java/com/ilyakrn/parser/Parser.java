@@ -22,111 +22,147 @@ public class Parser {
         Queue<Lex> tempInput = new LinkedList<>(input);
         if (tempInput.isEmpty())
             return -1;
-        else
-            return tempInput.poll().getLexeme().equals(lexeme) ? 1 : -1;
+        else{
+            Lex next = tempInput.poll();
+            int skipped = 0;
+            while (next.getLexeme().equals("\n")){
+                next = tempInput.poll();
+                skipped++;
+            }
+            if (skipped > 0 && lexeme.equals("\n"))
+                return skipped;
+            return next.getLexeme().equals(lexeme) ? 1 + skipped : -1;
+        }
     }
     private int isIdentifier(Queue<Lex> input){
         Queue<Lex> tempInput = new LinkedList<>(input);
         if (tempInput.isEmpty())
             return -1;
-        else
-            return tempInput.poll().getTableId() == LexerOutput.TABLE_IDENTIFIERS_ID ? 1 : -1;
+        else{
+            Lex next = tempInput.poll();
+            int skipped = 0;
+            while (next.getLexeme().equals("\n")){
+                next = tempInput.poll();
+                skipped++;
+            }
+            return next.getTableId() == LexerOutput.TABLE_IDENTIFIERS_ID ? 1 + skipped : -1;
+        }
     }
     private int isNumber(Queue<Lex> input) {
         Queue<Lex> tempInput = new LinkedList<>(input);
         if (tempInput.isEmpty())
             return -1;
-        else
-            return tempInput.poll().getTableId() == LexerOutput.TABLE_NUMBERS_ID ? 1 : -1;
+        else{
+            Lex next = tempInput.poll();
+            int skipped = 0;
+            while (next.getLexeme().equals("\n")){
+                next = tempInput.poll();
+                skipped++;
+            }
+            return next.getTableId() == LexerOutput.TABLE_NUMBERS_ID ? 1 + skipped : -1;
+        }
     }
 
     private int OGO(Queue<Lex> input){
         Queue<Lex> tempInput = new LinkedList<>(input);
         if (tempInput.isEmpty())
             return -1;
-        else {
-            String lexeme = tempInput.poll().getLexeme();
-            if(lexeme.equals("<>") ||
-                    lexeme.equals("=") ||
-                    lexeme.equals("<") ||
-                    lexeme.equals("<=") ||
-                    lexeme.equals(">") ||
-                    lexeme.equals(">=")
-            )
-                return 1;
-            else
-                return -1;
+        else{
+            Lex next = tempInput.poll();
+            int skipped = 0;
+            while (next.getLexeme().equals("\n")){
+                next = tempInput.poll();
+                skipped++;
+            }
+            return (next.getLexeme().equals("<>") ||
+                    next.getLexeme().equals("=") ||
+                    next.getLexeme().equals("<") ||
+                    next.getLexeme().equals("<=") ||
+                    next.getLexeme().equals(">") ||
+                    next.getLexeme().equals(">=")
+            )? 1 + skipped : -1;
         }
     }
     private int OGS(Queue<Lex> input){
         Queue<Lex> tempInput = new LinkedList<>(input);
         if (tempInput.isEmpty())
             return -1;
-        else {
-            String lexeme = tempInput.poll().getLexeme();
-            if(lexeme.equals("+") ||
-                    lexeme.equals("-") ||
-                    lexeme.equals("or")
-            )
-                return 1;
-            else
-                return -1;
+        else{
+            Lex next = tempInput.poll();
+            int skipped = 0;
+            while (next.getLexeme().equals("\n")){
+                next = tempInput.poll();
+                skipped++;
+            }
+            return (next.getLexeme().equals("+") ||
+                    next.getLexeme().equals("-") ||
+                    next.getLexeme().equals("or")
+            )? 1 + skipped : -1;
         }
     }
     private int OGU(Queue<Lex> input){
         Queue<Lex> tempInput = new LinkedList<>(input);
         if (tempInput.isEmpty())
             return -1;
-        else {
-            String lexeme = tempInput.poll().getLexeme();
-            if(lexeme.equals("*") ||
-                    lexeme.equals("/") ||
-                    lexeme.equals("and")
-            )
-                return 1;
-            else
-                return -1;
+        else{
+            Lex next = tempInput.poll();
+            int skipped = 0;
+            while (next.getLexeme().equals("\n")){
+                next = tempInput.poll();
+                skipped++;
+            }
+            return (next.getLexeme().equals("*") ||
+                    next.getLexeme().equals("/") ||
+                    next.getLexeme().equals("and")
+            )? 1 + skipped : -1;
         }
     }
     private int LC(Queue<Lex> input){
         Queue<Lex> tempInput = new LinkedList<>(input);
         if (tempInput.isEmpty())
             return -1;
-        else {
-            String lexeme = tempInput.poll().getLexeme();
-            if(lexeme.equals("true") ||
-                    lexeme.equals("false")
-            )
-                return 1;
-            else
-                return -1;
+        else{
+            Lex next = tempInput.poll();
+            int skipped = 0;
+            while (next.getLexeme().equals("\n")){
+                next = tempInput.poll();
+                skipped++;
+            }
+            return (next.getLexeme().equals("true") ||
+                    next.getLexeme().equals("false")
+            )? 1 + skipped : -1;
         }
     }
     private int UO(Queue<Lex> input){
         Queue<Lex> tempInput = new LinkedList<>(input);
         if (tempInput.isEmpty())
             return -1;
-        else {
-            String lexeme = tempInput.poll().getLexeme();
-            if(lexeme.equals("not"))
-                return 1;
-            else
-                return -1;
+        else{
+            Lex next = tempInput.poll();
+            int skipped = 0;
+            while (next.getLexeme().equals("\n")){
+                next = tempInput.poll();
+                skipped++;
+            }
+            return (next.getLexeme().equals("not")
+            )? 1 + skipped : -1;
         }
     }
     private int T(Queue<Lex> input){
         Queue<Lex> tempInput = new LinkedList<>(input);
         if (tempInput.isEmpty())
             return -1;
-        else {
-            String lexeme = tempInput.poll().getLexeme();
-            if(lexeme.equals("int") ||
-                    lexeme.equals("float") ||
-                    lexeme.equals("bool")
-            )
-                return 1;
-            else
-                return -1;
+        else{
+            Lex next = tempInput.poll();
+            int skipped = 0;
+            while (next.getLexeme().equals("\n")){
+                next = tempInput.poll();
+                skipped++;
+            }
+            return (next.getLexeme().equals("int") ||
+                    next.getLexeme().equals("float") ||
+                    next.getLexeme().equals("bool")
+            )? 1 + skipped : -1;
         }
     }
 
@@ -535,9 +571,13 @@ public class Parser {
                 tempInput.poll();
             }
 
+            boolean isLn = false;
             int result1 = nextLexemeIs(tempInput, ":");
-            if (result1 == -1)
+            if (result1 == -1) {
                 result1 = nextLexemeIs(tempInput, "\n");
+                if (result1 != -1)
+                    isLn = true;
+            }
 
             while (result1 != -1) {
                 for (int i = 0; i < result1; i++) {
@@ -546,16 +586,24 @@ public class Parser {
                 result += result1;
 
                 int result2 = OPERATOR(tempInput);
-                if (result2 == -1)
+                if (result2 == -1 && !isLn)
                     return -1;
+                else if (isLn){
+                    result -= result1;
+                    break;
+                }
                 for (int i = 0; i < result2; i++) {
                     tempInput.poll();
                 }
                 result += result2;
 
+                isLn = false;
                 result1 = nextLexemeIs(tempInput, ":");
-                if (result1 == -1)
+                if (result1 == -1) {
                     result1 = nextLexemeIs(tempInput, "\n");
+                    if (result1 != -1)
+                        isLn = true;
+                }
             }
         }
 
