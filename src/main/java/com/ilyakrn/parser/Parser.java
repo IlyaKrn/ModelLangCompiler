@@ -516,39 +516,6 @@ public class Parser {
 
         return result;
     }
-    private int SOSTAV(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
-        int result = OPERATOR(tempInput);
-        if (result == -1)
-            return -1;
-        for (int i = 0; i < result; i++) {
-            tempInput.poll();
-        }
-
-        int result1 = nextLexemeIs(tempInput, ":");
-        if (result1 == -1)
-            result1 = nextLexemeIs(tempInput, "\n");
-
-        while (result1 != -1) {
-            for (int i = 0; i < result1; i++) {
-                tempInput.poll();
-            }
-            result += result1;
-            int result2 = OPERATOR(tempInput);
-            if (result2 == -1)
-                return -1;
-            for (int i = 0; i < result2; i++) {
-                tempInput.poll();
-            }
-            result += result2;
-
-            result1 = nextLexemeIs(tempInput, ":");
-            if (result1 == -1)
-                result1 = nextLexemeIs(tempInput, "\n");
-        }
-
-        return result;
-    }
 
     private int OPERATOR(Queue<Lex> input){
         Queue<Lex> tempInput = new LinkedList<>(input);
@@ -566,8 +533,35 @@ public class Parser {
             result = ENTER(tempInput);
         if (result == -1)
             result = OUT(tempInput);
-//        if (result == -1)
-//            result = SOSTAV(tempInput);
+
+        if (result != -1){
+            for (int i = 0; i < result; i++) {
+                tempInput.poll();
+            }
+
+            int result1 = nextLexemeIs(tempInput, ":");
+            if (result1 == -1)
+                result1 = nextLexemeIs(tempInput, "\n");
+
+            while (result1 != -1) {
+                for (int i = 0; i < result1; i++) {
+                    tempInput.poll();
+                }
+                result += result1;
+
+                int result2 = OPERATOR(tempInput);
+                if (result2 == -1)
+                    return -1;
+                for (int i = 0; i < result2; i++) {
+                    tempInput.poll();
+                }
+                result += result2;
+
+                result1 = nextLexemeIs(tempInput, ":");
+                if (result1 == -1)
+                    result1 = nextLexemeIs(tempInput, "\n");
+            }
+        }
 
         return result;
     }
@@ -710,9 +704,9 @@ public class Parser {
 //          <условный>::= if <выражение> then <оператор> [ else <оператор>]
 //          <фиксированного_цикла>::= for <присваивания> to <выражение> do <оператор>
 //          <условного_цикла>::= while <выражение> do <оператор>
-//          <составной>::= <оператор> { ( : | перевод строки) <оператор> }
+//          ---------<составной>::= <оператор> { ( : | перевод строки) <оператор> }
 
-//          <оператор>::= (<составной> | <присваивания> | <условный> | <фиксированного_цикла> | <условного_цикла> | <ввода> | <вывода>)
+//          <оператор>::= (<присваивания> | <условный> | <фиксированного_цикла> | <условного_цикла> | <ввода> | <вывода>) { ( : | перевод строки) <оператор> }
 //          <описание>::= <тип> <идентификатор> { , <идентификатор> }
 
 //          <программа>::= { {/ (<описание> | <оператор>) ; /} }
