@@ -1,29 +1,58 @@
 package com.ilyakrn.parser;
 
-import com.ilyakrn.lexer.Lex;
-import com.ilyakrn.lexer.LexAndTable;
 import com.ilyakrn.lexer.LexerOutput;
+import com.ilyakrn.lexer.items.*;
+import com.ilyakrn.parser.items.ParserQueueItem;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
 public class Parser {
 
-    public boolean analyze(LexerOutput lexerOutput) {
-        Queue<Lex> input = new LinkedList<>();
-        for (LexAndTable lexAndTable : lexerOutput.getLexemesList()){
-            input.add(lexerOutput.getLexTables().get(lexAndTable.getTableId()).get(lexAndTable.getLexId()));
+    private ArrayList<ServiceItem> serviceTable;
+    private ArrayList<DelimiterItem> delimiterTable;
+    private ArrayList<IdentifierItem> identifierTable;
+    private ArrayList<NumberItem> numberTable;
+
+    public boolean analyze(LexerOutput lexerOutput) throws Exception {
+        serviceTable = lexerOutput.getServiceTable();
+        delimiterTable = lexerOutput.getDelimiterTable();
+        identifierTable = lexerOutput.getIdentifierTable();
+        numberTable = lexerOutput.getNumberTable();
+
+        Queue<ParserQueueItem> input = new LinkedList<>();
+        for (int i = 0; i < lexerOutput.getLexemesSeqTable().size(); i++) {
+            String lexemeText = "";
+            switch (lexerOutput.getLexemesSeqTable().get(i).getTableId()){
+                case LexerOutput.serviceTableId:
+                    lexemeText = serviceTable.get(lexerOutput.getLexemesSeqTable().get(i).getLexId()).getLexeme();
+                    break;
+                case LexerOutput.delimiterTableId:
+                    lexemeText = delimiterTable.get(lexerOutput.getLexemesSeqTable().get(i).getLexId()).getLexeme();
+                    break;
+                case LexerOutput.identifierTableId:
+                    lexemeText = identifierTable.get(lexerOutput.getLexemesSeqTable().get(i).getLexId()).getLexeme();
+                    break;
+                case LexerOutput.numberTableId:
+                    lexemeText = numberTable.get(lexerOutput.getLexemesSeqTable().get(i).getLexId()).getLexeme();
+                    break;
+                default:
+                    throw new Exception("Invalid table id: " + lexerOutput.getLexemesSeqTable().get(i).getTableId());
+            }
+            input.add(new ParserQueueItem(lexerOutput.getLexemesSeqTable().get(i).getLexId(), lexerOutput.getLexemesSeqTable().get(i).getTableId(), lexemeText));
         }
+
         int result = PROG(input);
         return result == input.size();
     }
 
-    private int nextLexemeIs(Queue<Lex> input, String lexeme){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int nextLexemeIs(Queue<ParserQueueItem> input, String lexeme){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         if (tempInput.isEmpty())
             return -1;
         else{
-            Lex next = tempInput.poll();
+            ParserQueueItem next = tempInput.poll();
             int skipped = 0;
             while (next.getLexeme().equals("\n")){
                 next = tempInput.poll();
@@ -34,41 +63,41 @@ public class Parser {
             return next.getLexeme().equals(lexeme) ? 1 + skipped : -1;
         }
     }
-    private int isIdentifier(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int isIdentifier(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         if (tempInput.isEmpty())
             return -1;
         else{
-            Lex next = tempInput.poll();
+            ParserQueueItem next = tempInput.poll();
             int skipped = 0;
             while (next.getLexeme().equals("\n")){
                 next = tempInput.poll();
                 skipped++;
             }
-            return next.getTableId() == LexerOutput.TABLE_IDENTIFIERS_ID ? 1 + skipped : -1;
+            return next.getTableId() == LexerOutput.identifierTableId ? 1 + skipped : -1;
         }
     }
-    private int isNumber(Queue<Lex> input) {
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int isNumber(Queue<ParserQueueItem> input) {
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         if (tempInput.isEmpty())
             return -1;
         else{
-            Lex next = tempInput.poll();
+            ParserQueueItem next = tempInput.poll();
             int skipped = 0;
             while (next.getLexeme().equals("\n")){
                 next = tempInput.poll();
                 skipped++;
             }
-            return next.getTableId() == LexerOutput.TABLE_NUMBERS_ID ? 1 + skipped : -1;
+            return next.getTableId() == LexerOutput.numberTableId ? 1 + skipped : -1;
         }
     }
 
-    private int OGO(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int OGO(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         if (tempInput.isEmpty())
             return -1;
         else{
-            Lex next = tempInput.poll();
+            ParserQueueItem next = tempInput.poll();
             int skipped = 0;
             while (next.getLexeme().equals("\n")){
                 next = tempInput.poll();
@@ -83,12 +112,12 @@ public class Parser {
             )? 1 + skipped : -1;
         }
     }
-    private int OGS(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int OGS(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         if (tempInput.isEmpty())
             return -1;
         else{
-            Lex next = tempInput.poll();
+            ParserQueueItem next = tempInput.poll();
             int skipped = 0;
             while (next.getLexeme().equals("\n")){
                 next = tempInput.poll();
@@ -100,12 +129,12 @@ public class Parser {
             )? 1 + skipped : -1;
         }
     }
-    private int OGU(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int OGU(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         if (tempInput.isEmpty())
             return -1;
         else{
-            Lex next = tempInput.poll();
+            ParserQueueItem next = tempInput.poll();
             int skipped = 0;
             while (next.getLexeme().equals("\n")){
                 next = tempInput.poll();
@@ -117,12 +146,12 @@ public class Parser {
             )? 1 + skipped : -1;
         }
     }
-    private int LC(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int LC(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         if (tempInput.isEmpty())
             return -1;
         else{
-            Lex next = tempInput.poll();
+            ParserQueueItem next = tempInput.poll();
             int skipped = 0;
             while (next.getLexeme().equals("\n")){
                 next = tempInput.poll();
@@ -133,12 +162,12 @@ public class Parser {
             )? 1 + skipped : -1;
         }
     }
-    private int UO(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int UO(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         if (tempInput.isEmpty())
             return -1;
         else{
-            Lex next = tempInput.poll();
+            ParserQueueItem next = tempInput.poll();
             int skipped = 0;
             while (next.getLexeme().equals("\n")){
                 next = tempInput.poll();
@@ -148,12 +177,12 @@ public class Parser {
             )? 1 + skipped : -1;
         }
     }
-    private int T(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int T(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         if (tempInput.isEmpty())
             return -1;
         else{
-            Lex next = tempInput.poll();
+            ParserQueueItem next = tempInput.poll();
             int skipped = 0;
             while (next.getLexeme().equals("\n")){
                 next = tempInput.poll();
@@ -166,8 +195,8 @@ public class Parser {
         }
     }
 
-    private int EXPR(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int EXPR(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         int result = OPRND(tempInput);
         if (result != -1){
             for (int i = 0; i < result; i++) {
@@ -195,8 +224,8 @@ public class Parser {
         }
         return result;
     }
-    private int SLAG(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int SLAG(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         int result = MNOZH(tempInput);
         if (result != -1){
             for (int i = 0; i < result; i++) {
@@ -224,8 +253,8 @@ public class Parser {
         }
         return result;
     }
-    private int OPRND(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int OPRND(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         int result = SLAG(tempInput);
         if (result != -1){
             for (int i = 0; i < result; i++) {
@@ -253,8 +282,8 @@ public class Parser {
         }
         return result;
     }
-    private int MNOZH(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int MNOZH(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         int result = -1;
 
         if (result == -1)
@@ -279,8 +308,8 @@ public class Parser {
         return result;
     }
 
-    private int ENTER(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int ENTER(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
 
         int result = nextLexemeIs(tempInput,"read");
         if (result == -1)
@@ -333,8 +362,8 @@ public class Parser {
         result += result5;
         return result;
     }
-    private int OUT(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int OUT(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
 
         int result = nextLexemeIs(tempInput,"write");
         if (result == -1)
@@ -387,8 +416,8 @@ public class Parser {
         result += result5;
         return result;
     }
-    private int PRISV(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int PRISV(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         int result = isIdentifier(tempInput);
         if (result == -1)
             return -1;
@@ -413,8 +442,8 @@ public class Parser {
         result += result2;
         return result;
     }
-    private int USLOV(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int USLOV(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         int result = nextLexemeIs(tempInput, "if");
         if (result == -1)
             return -1;
@@ -463,8 +492,8 @@ public class Parser {
         }
         return result;
     }
-    private int FIXLOOP(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int FIXLOOP(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         int result = nextLexemeIs(tempInput, "for");
         if (result == -1)
             return -1;
@@ -513,8 +542,8 @@ public class Parser {
         result += result5;
         return result;
     }
-    private int USLLOOP(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int USLLOOP(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         int result = nextLexemeIs(tempInput, "while");
         if (result == -1)
             return -1;
@@ -549,8 +578,8 @@ public class Parser {
         return result;
     }
 
-    private int OPERATOR(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int OPERATOR(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         int result = -1;
 
         if (result == -1)
@@ -610,8 +639,8 @@ public class Parser {
         return result;
     }
 
-    private int DESC(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int DESC(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         int result = T(tempInput);
         if (result == -1)
             return -1;
@@ -647,8 +676,8 @@ public class Parser {
 
         return result;
     }
-    private int PROG(Queue<Lex> input){
-        Queue<Lex> tempInput = new LinkedList<>(input);
+    private int PROG(Queue<ParserQueueItem> input){
+        Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         int result = nextLexemeIs(tempInput, "{");
         if (result == -1)
             return -1;

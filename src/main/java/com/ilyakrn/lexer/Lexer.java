@@ -1,5 +1,7 @@
 package com.ilyakrn.lexer;
 
+import com.ilyakrn.lexer.items.*;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -31,56 +33,60 @@ public class Lexer {
     private int curLexId;
     private int curTableId;
 
-    private final ArrayList<ArrayList<Lex>> lexTables;
-    ArrayList<LexAndTable> lexemesList = new ArrayList<>();
+    private final ArrayList<ServiceItem> serviceTable;
+    private final ArrayList<DelimiterItem> delimiterTable;
+    private final ArrayList<IdentifierItem> identifierTable;
+    private final ArrayList<NumberItem> numberTable;
+
+    private final ArrayList<LexemesSeqItem> lexemesSeqTable;
 
     private final Queue<Character> input;
 
     public Lexer() {
         input = new LinkedList<>();
-        lexTables = new ArrayList<>();
-        lexTables.add(new ArrayList<>());
-        lexTables.add(new ArrayList<>());
-        lexTables.add(new ArrayList<>());
-        lexTables.add(new ArrayList<>());
+        serviceTable = new ArrayList<>();
+        delimiterTable = new ArrayList<>();
+        identifierTable = new ArrayList<>();
+        numberTable = new ArrayList<>();
+        lexemesSeqTable = new ArrayList<>();
 
-        lexTables.get(LexerOutput.TABLE_SERVICE_ID).add(new Lex(0, LexerOutput.TABLE_SERVICE_ID, "true"));
-        lexTables.get(LexerOutput.TABLE_SERVICE_ID).add(new Lex(1, LexerOutput.TABLE_SERVICE_ID, "false"));
-        lexTables.get(LexerOutput.TABLE_SERVICE_ID).add(new Lex(2, LexerOutput.TABLE_SERVICE_ID, "int"));
-        lexTables.get(LexerOutput.TABLE_SERVICE_ID).add(new Lex(3, LexerOutput.TABLE_SERVICE_ID, "float"));
-        lexTables.get(LexerOutput.TABLE_SERVICE_ID).add(new Lex(4, LexerOutput.TABLE_SERVICE_ID, "bool"));
-        lexTables.get(LexerOutput.TABLE_SERVICE_ID).add(new Lex(5, LexerOutput.TABLE_SERVICE_ID, "if"));
-        lexTables.get(LexerOutput.TABLE_SERVICE_ID).add(new Lex(6, LexerOutput.TABLE_SERVICE_ID, "then"));
-        lexTables.get(LexerOutput.TABLE_SERVICE_ID).add(new Lex(7, LexerOutput.TABLE_SERVICE_ID, "else"));
-        lexTables.get(LexerOutput.TABLE_SERVICE_ID).add(new Lex(8, LexerOutput.TABLE_SERVICE_ID, "for"));
-        lexTables.get(LexerOutput.TABLE_SERVICE_ID).add(new Lex(9, LexerOutput.TABLE_SERVICE_ID, "while"));
-        lexTables.get(LexerOutput.TABLE_SERVICE_ID).add(new Lex(10, LexerOutput.TABLE_SERVICE_ID, "to"));
-        lexTables.get(LexerOutput.TABLE_SERVICE_ID).add(new Lex(11, LexerOutput.TABLE_SERVICE_ID, "do"));
-        lexTables.get(LexerOutput.TABLE_SERVICE_ID).add(new Lex(12, LexerOutput.TABLE_SERVICE_ID, "read"));
-        lexTables.get(LexerOutput.TABLE_SERVICE_ID).add(new Lex(13, LexerOutput.TABLE_SERVICE_ID, "write"));
+        serviceTable.add(new ServiceItem("true"));
+        serviceTable.add(new ServiceItem("false"));
+        serviceTable.add(new ServiceItem("int"));
+        serviceTable.add(new ServiceItem("float"));
+        serviceTable.add(new ServiceItem("bool"));
+        serviceTable.add(new ServiceItem("if"));
+        serviceTable.add(new ServiceItem("then"));
+        serviceTable.add(new ServiceItem("else"));
+        serviceTable.add(new ServiceItem("for"));
+        serviceTable.add(new ServiceItem("while"));
+        serviceTable.add(new ServiceItem("to"));
+        serviceTable.add(new ServiceItem("do"));
+        serviceTable.add(new ServiceItem("read"));
+        serviceTable.add(new ServiceItem("write"));
 
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(0, LexerOutput.TABLE_DELIMITERS_ID, "\n"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(1, LexerOutput.TABLE_DELIMITERS_ID, ";"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(2, LexerOutput.TABLE_DELIMITERS_ID, ":"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(3, LexerOutput.TABLE_DELIMITERS_ID, ","));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(4, LexerOutput.TABLE_DELIMITERS_ID, ">"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(5, LexerOutput.TABLE_DELIMITERS_ID, "<"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(6, LexerOutput.TABLE_DELIMITERS_ID, "<>"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(7, LexerOutput.TABLE_DELIMITERS_ID, ">="));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(8, LexerOutput.TABLE_DELIMITERS_ID, "<="));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(9, LexerOutput.TABLE_DELIMITERS_ID, "="));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(10, LexerOutput.TABLE_DELIMITERS_ID, "+"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(11, LexerOutput.TABLE_DELIMITERS_ID, "-"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(12, LexerOutput.TABLE_DELIMITERS_ID, "*"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(13, LexerOutput.TABLE_DELIMITERS_ID, "/"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(14, LexerOutput.TABLE_DELIMITERS_ID, "or"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(15, LexerOutput.TABLE_DELIMITERS_ID, "and"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(16, LexerOutput.TABLE_DELIMITERS_ID, "not"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(17, LexerOutput.TABLE_DELIMITERS_ID, "ass"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(18, LexerOutput.TABLE_DELIMITERS_ID, "("));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(19, LexerOutput.TABLE_DELIMITERS_ID, ")"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(20, LexerOutput.TABLE_DELIMITERS_ID, "{"));
-        lexTables.get(LexerOutput.TABLE_DELIMITERS_ID).add(new Lex(21, LexerOutput.TABLE_DELIMITERS_ID, "}"));
+        delimiterTable.add(new DelimiterItem("\n"));
+        delimiterTable.add(new DelimiterItem(";"));
+        delimiterTable.add(new DelimiterItem(":"));
+        delimiterTable.add(new DelimiterItem(","));
+        delimiterTable.add(new DelimiterItem(">"));
+        delimiterTable.add(new DelimiterItem("<"));
+        delimiterTable.add(new DelimiterItem("<>"));
+        delimiterTable.add(new DelimiterItem(">="));
+        delimiterTable.add(new DelimiterItem("<="));
+        delimiterTable.add(new DelimiterItem("="));
+        delimiterTable.add(new DelimiterItem("+"));
+        delimiterTable.add(new DelimiterItem("-"));
+        delimiterTable.add(new DelimiterItem("*"));
+        delimiterTable.add(new DelimiterItem("/"));
+        delimiterTable.add(new DelimiterItem("or"));
+        delimiterTable.add(new DelimiterItem("and"));
+        delimiterTable.add(new DelimiterItem("not"));
+        delimiterTable.add(new DelimiterItem("ass"));
+        delimiterTable.add(new DelimiterItem("("));
+        delimiterTable.add(new DelimiterItem(")"));
+        delimiterTable.add(new DelimiterItem("{"));
+        delimiterTable.add(new DelimiterItem("}"));
     }
 
     private boolean isBinAllow(){
@@ -103,40 +109,93 @@ public class Lexer {
     }
 
     private void check(int tableId) throws Exception {
-        if(tableId >= lexTables.size()){
-            throw new Exception("table with id '" + tableId + "' not exists");
+        switch (tableId){
+            case LexerOutput.serviceTableId:
+                curTableId = tableId;
+                for (int i = 0; i < serviceTable.size(); i++) {
+                    if(serviceTable.get(i).getLexeme().equals(lexBuffer)){
+                        curLexId = i;
+                        return;
+                    }
+                }
+                curLexId = -1;
+                break;
+            case LexerOutput.delimiterTableId:
+                curTableId = tableId;
+                for (int i = 0; i < delimiterTable.size(); i++) {
+                    if(delimiterTable.get(i).getLexeme().equals(lexBuffer)){
+                        curLexId = i;
+                        return;
+                    }
+                }
+                curLexId = -1;
+                break;
+            case LexerOutput.identifierTableId:
+                curTableId = tableId;
+                for (int i = 0; i < identifierTable.size(); i++) {
+                    if(identifierTable.get(i).getLexeme().equals(lexBuffer)){
+                        curLexId = i;
+                        return;
+                    }
+                }
+                curLexId = -1;
+                break;
+            case LexerOutput.numberTableId:
+                curTableId = tableId;
+                for (int i = 0; i < numberTable.size(); i++) {
+                    if(numberTable.get(i).getLexeme().equals(lexBuffer)){
+                        curLexId = i;
+                        return;
+                    }
+                }
+                curLexId = -1;
+                break;
+            default:
+                throw new Exception("table with id '" + tableId + "' not exists");
         }
-        curTableId = tableId;
-        for (int i = 0; i < lexTables.get(tableId).size(); i++) {
-            if(lexTables.get(tableId).get(i).getLexeme().equals(lexBuffer)){
-                curLexId = lexTables.get(tableId).get(i).getId();
-                return;
-            }
-        }
-        curLexId = -1;
     }
 
     private void put(int tableId) throws Exception {
-        if(tableId >= lexTables.size()){
-            throw new Exception("table with id '" + tableId + "' not exists");
-        }
-        if(tableId == LexerOutput.TABLE_SERVICE_ID || tableId == LexerOutput.TABLE_DELIMITERS_ID){
-            throw new Exception("table with id '" + tableId + "' read only");
-        }
-        curTableId = tableId;
-        int findId = -1;
-        for (Lex lex : lexTables.get(tableId)) {
-            if(lex.getLexeme().equals(lexBuffer)){
-                findId = lex.getId();
+        switch (tableId){
+            case LexerOutput.serviceTableId:
+            case LexerOutput.delimiterTableId:
+                throw new Exception("table with id '" + tableId + "' can not modify");
+            case LexerOutput.identifierTableId:
+                curTableId = tableId;
+                int findId = -1;
+                for (int i = 0; i < identifierTable.size(); i++) {
+                    if(identifierTable.get(i).getLexeme().equals(lexBuffer)){
+                        findId = i;
+                        break;
+                    }
+                }
+                if(findId == -1){
+                    identifierTable.add(new IdentifierItem(lexBuffer, false, null));
+                    curLexId = identifierTable.size() - 1;
+                }
+                else {
+                    curLexId = findId;
+                }
                 break;
-            }
-        }
-        if(findId == -1){
-            lexTables.get(tableId).add(new Lex(lexTables.get(tableId).size(), tableId, lexBuffer));
-            curLexId = lexTables.get(tableId).size() - 1;
-        }
-        else {
-            curLexId = findId;
+            case LexerOutput.numberTableId:
+                curTableId = tableId;
+                findId = -1;
+                for (int i = 0; i < numberTable.size(); i++) {
+                    if(numberTable.get(i).getLexeme().equals(lexBuffer)){
+                        findId = i;
+                        break;
+                    }
+                }
+                if(findId == -1){
+                    numberTable.add(new NumberItem(lexBuffer));
+                    curLexId = numberTable.size() - 1;
+                }
+                else {
+                    curLexId = findId;
+                }
+                break;
+            default:
+                throw new Exception("table with id '" + tableId + "' not exists");
         }
     }
 
@@ -153,19 +212,36 @@ public class Lexer {
     }
 
     private void write(int tableId, int lexId) throws Exception {
-        if(tableId >= lexTables.size()){
-            throw new Exception("table with id '" + tableId + "' not exists");
+        switch (tableId){
+            case LexerOutput.serviceTableId:
+                if (lexId >= serviceTable.size() || lexId < 0)
+                    throw new Exception("lexeme in table '" + tableId + "' with id '" + lexId + "' not exists");
+                lexemesSeqTable.add(new LexemesSeqItem(tableId, lexId));
+                break;
+            case LexerOutput.delimiterTableId:
+                if (lexId >= delimiterTable.size() || lexId < 0)
+                    throw new Exception("lexeme in table '" + tableId + "' with id '" + lexId + "' not exists");
+                lexemesSeqTable.add(new LexemesSeqItem(tableId, lexId));
+                break;
+            case LexerOutput.identifierTableId:
+                if (lexId >= identifierTable.size() || lexId < 0)
+                    throw new Exception("lexeme in table '" + tableId + "' with id '" + lexId + "' not exists");
+                lexemesSeqTable.add(new LexemesSeqItem(tableId, lexId));
+                break;
+            case LexerOutput.numberTableId:
+                if (lexId >= numberTable.size() || lexId < 0)
+                    throw new Exception("lexeme in table '" + tableId + "' with id '" + lexId + "' not exists");
+                lexemesSeqTable.add(new LexemesSeqItem(tableId, lexId));
+                break;
+            default:
+                throw new Exception("table with id '" + tableId + "' not exists");
         }
-        if(lexId >= lexTables.get(tableId).size()){
-            throw new Exception("lexeme in table '" + tableId + "' with id '" + lexId + "' not exists");
-        }
-        lexemesList.add(new LexAndTable(tableId, lexId));
     }
 
     public LexerOutput analyze(String progText) throws Exception {
-        lexTables.get(LexerOutput.TABLE_IDENTIFIERS_ID).clear();
-        lexTables.get(LexerOutput.TABLE_NUMBERS_ID).clear();
-        lexemesList.clear();
+        identifierTable.clear();
+        numberTable.clear();
+        lexemesSeqTable.clear();
         input.clear();
         lexBuffer = "";
         currentChar = null;
@@ -251,8 +327,8 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(LexerOutput.TABLE_NUMBERS_ID);
-                        write(LexerOutput.TABLE_NUMBERS_ID, curLexId);
+                        put(LexerOutput.numberTableId);
+                        write(LexerOutput.numberTableId, curLexId);
                         clean();
                         add();
                     }
@@ -290,8 +366,8 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(LexerOutput.TABLE_NUMBERS_ID);
-                        write(LexerOutput.TABLE_NUMBERS_ID, curLexId);
+                        put(LexerOutput.numberTableId);
+                        write(LexerOutput.numberTableId, curLexId);
                         clean();
                         add();
                     }
@@ -323,8 +399,8 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(LexerOutput.TABLE_NUMBERS_ID);
-                        write(LexerOutput.TABLE_NUMBERS_ID, curLexId);
+                        put(LexerOutput.numberTableId);
+                        write(LexerOutput.numberTableId, curLexId);
                         clean();
                         add();
                     }
@@ -355,19 +431,19 @@ public class Lexer {
                         add();
                     } else {
                         currentState = STATE.DELIMITER;
-                        check(LexerOutput.TABLE_SERVICE_ID);
+                        check(LexerOutput.serviceTableId);
                         if (curLexId == -1){
-                            check(LexerOutput.TABLE_DELIMITERS_ID);
+                            check(LexerOutput.delimiterTableId);
                             if (curLexId == -1){
-                                put(LexerOutput.TABLE_IDENTIFIERS_ID);
-                                write(LexerOutput.TABLE_IDENTIFIERS_ID, curLexId);
+                                put(LexerOutput.identifierTableId);
+                                write(LexerOutput.identifierTableId, curLexId);
                             }
                             else {
-                                write(LexerOutput.TABLE_DELIMITERS_ID, curLexId);
+                                write(LexerOutput.delimiterTableId, curLexId);
                             }
                         }
                         else {
-                            write(LexerOutput.TABLE_SERVICE_ID, curLexId);
+                            write(LexerOutput.serviceTableId, curLexId);
                         }
                         clean();
                         add();
@@ -390,8 +466,8 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(LexerOutput.TABLE_NUMBERS_ID);
-                        write(LexerOutput.TABLE_NUMBERS_ID, curLexId);
+                        put(LexerOutput.numberTableId);
+                        write(LexerOutput.numberTableId, curLexId);
                         clean();
                         add();
                     }
@@ -407,8 +483,8 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(LexerOutput.TABLE_NUMBERS_ID);
-                        write(LexerOutput.TABLE_NUMBERS_ID, curLexId);
+                        put(LexerOutput.numberTableId);
+                        write(LexerOutput.numberTableId, curLexId);
                         clean();
                         add();
                     }
@@ -441,8 +517,8 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(LexerOutput.TABLE_NUMBERS_ID);
-                        write(LexerOutput.TABLE_NUMBERS_ID, curLexId);
+                        put(LexerOutput.numberTableId);
+                        write(LexerOutput.numberTableId, curLexId);
                         clean();
                         add();
                     }
@@ -463,8 +539,8 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(LexerOutput.TABLE_NUMBERS_ID);
-                        write(LexerOutput.TABLE_NUMBERS_ID, curLexId);
+                        put(LexerOutput.numberTableId);
+                        write(LexerOutput.numberTableId, curLexId);
                         clean();
                         add();
                     }
@@ -482,8 +558,8 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(LexerOutput.TABLE_NUMBERS_ID);
-                        write(LexerOutput.TABLE_NUMBERS_ID, curLexId);
+                        put(LexerOutput.numberTableId);
+                        write(LexerOutput.numberTableId, curLexId);
                         clean();
                         add();
                     }
@@ -500,8 +576,8 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(LexerOutput.TABLE_NUMBERS_ID);
-                        write(LexerOutput.TABLE_NUMBERS_ID, curLexId);
+                        put(LexerOutput.numberTableId);
+                        write(LexerOutput.numberTableId, curLexId);
                         clean();
                         add();
                     }
@@ -526,8 +602,8 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(LexerOutput.TABLE_NUMBERS_ID);
-                        write(LexerOutput.TABLE_NUMBERS_ID, curLexId);
+                        put(LexerOutput.numberTableId);
+                        write(LexerOutput.numberTableId, curLexId);
                         clean();
                         add();
                     }
@@ -544,8 +620,8 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(LexerOutput.TABLE_NUMBERS_ID);
-                        write(LexerOutput.TABLE_NUMBERS_ID, curLexId);
+                        put(LexerOutput.numberTableId);
+                        write(LexerOutput.numberTableId, curLexId);
                         clean();
                         add();
                     }
@@ -569,7 +645,7 @@ public class Lexer {
                         currentState = STATE.COMMENT_START;
                     }
                     else {
-                        check(LexerOutput.TABLE_DELIMITERS_ID);
+                        check(LexerOutput.delimiterTableId);
                         if (curLexId == -1){
                             currentState = STATE.ERROR;
                             message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
@@ -581,7 +657,7 @@ public class Lexer {
                             else {
                                 currentState = STATE.READ;
                             }
-                            write(LexerOutput.TABLE_DELIMITERS_ID, curLexId);
+                            write(LexerOutput.delimiterTableId, curLexId);
                             clean();
                         }
                     }
@@ -594,73 +670,73 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else if(currentChar == '='){
                         add();
-                        check(LexerOutput.TABLE_DELIMITERS_ID);
+                        check(LexerOutput.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
                             message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
                         }
                         else {
                             currentState = STATE.READ;
-                            write(LexerOutput.TABLE_DELIMITERS_ID, curLexId);
+                            write(LexerOutput.delimiterTableId, curLexId);
                             clean();
                         }
                     } else if(currentChar == '>'){
                         add();
-                        check(LexerOutput.TABLE_DELIMITERS_ID);
+                        check(LexerOutput.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
                             message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
                         }
                         else {
                             currentState = STATE.READ;
-                            write(LexerOutput.TABLE_DELIMITERS_ID, curLexId);
+                            write(LexerOutput.delimiterTableId, curLexId);
                             clean();
                         }
                     } else if (isBinAllow()) {
                         currentState = STATE.NUM_BIN;
-                        check(LexerOutput.TABLE_DELIMITERS_ID);
+                        check(LexerOutput.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
                             message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
                         }
                         else {
-                            write(LexerOutput.TABLE_DELIMITERS_ID, curLexId);
+                            write(LexerOutput.delimiterTableId, curLexId);
                         }
                         clean();
                         add();
                     } else if (isOctAllow()) {
                         currentState = STATE.NUM_OCT;
-                        check(LexerOutput.TABLE_DELIMITERS_ID);
+                        check(LexerOutput.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
                             message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
                         }
                         else {
-                            write(LexerOutput.TABLE_DELIMITERS_ID, curLexId);
+                            write(LexerOutput.delimiterTableId, curLexId);
                         }
                         clean();
                         add();
                     } else if (isDecAllow()) {
                         currentState = STATE.NUM_DEC;
-                        check(LexerOutput.TABLE_DELIMITERS_ID);
+                        check(LexerOutput.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
                             message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
                         }
                         else {
-                            write(LexerOutput.TABLE_DELIMITERS_ID, curLexId);
+                            write(LexerOutput.delimiterTableId, curLexId);
                         }
                         clean();
                         add();
                     } else if (isLetter()) {
                         currentState = STATE.IDENT;
-                        check(LexerOutput.TABLE_DELIMITERS_ID);
+                        check(LexerOutput.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
                             message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
                         }
                         else {
-                            write(LexerOutput.TABLE_DELIMITERS_ID, curLexId);
+                            write(LexerOutput.delimiterTableId, curLexId);
                         }
                         clean();
                         add();
@@ -671,19 +747,19 @@ public class Lexer {
                             message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
                         }
                         else {
-                            write(LexerOutput.TABLE_DELIMITERS_ID, curLexId);
+                            write(LexerOutput.delimiterTableId, curLexId);
                         }
                         clean();
                         add();
                     } else {
-                        check(LexerOutput.TABLE_DELIMITERS_ID);
+                        check(LexerOutput.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
                             message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
                         }
                         else {
                             currentState = STATE.DELIMITER;
-                            write(LexerOutput.TABLE_DELIMITERS_ID, curLexId);
+                            write(LexerOutput.delimiterTableId, curLexId);
                             clean();
                             add();
                         }
@@ -697,13 +773,13 @@ public class Lexer {
                     } else if(currentChar == ' '){
                         currentState = STATE.READ;
 
-                        check(LexerOutput.TABLE_DELIMITERS_ID);
+                        check(LexerOutput.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
                             message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
                         }
                         else {
-                            write(LexerOutput.TABLE_DELIMITERS_ID, curLexId);
+                            write(LexerOutput.delimiterTableId, curLexId);
                         }
                         clean();
                     } else if(currentChar == '*'){
@@ -711,49 +787,49 @@ public class Lexer {
                         clean();
                     } else if (isBinAllow()) {
                         currentState = STATE.NUM_BIN;
-                        check(LexerOutput.TABLE_DELIMITERS_ID);
+                        check(LexerOutput.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
                             message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
                         }
                         else {
-                            write(LexerOutput.TABLE_DELIMITERS_ID, curLexId);
+                            write(LexerOutput.delimiterTableId, curLexId);
                         }
                         clean();
                         add();
                     } else if (isOctAllow()) {
                         currentState = STATE.NUM_OCT;
-                        check(LexerOutput.TABLE_DELIMITERS_ID);
+                        check(LexerOutput.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
                             message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
                         }
                         else {
-                            write(LexerOutput.TABLE_DELIMITERS_ID, curLexId);
+                            write(LexerOutput.delimiterTableId, curLexId);
                         }
                         clean();
                         add();
                     } else if (isDecAllow()) {
                         currentState = STATE.NUM_DEC;
-                        check(LexerOutput.TABLE_DELIMITERS_ID);
+                        check(LexerOutput.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
                             message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
                         }
                         else {
-                            write(LexerOutput.TABLE_DELIMITERS_ID, curLexId);
+                            write(LexerOutput.delimiterTableId, curLexId);
                         }
                         clean();
                         add();
                     } else if (isLetter()) {
                         currentState = STATE.IDENT;
-                        check(LexerOutput.TABLE_DELIMITERS_ID);
+                        check(LexerOutput.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
                             message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
                         }
                         else {
-                            write(LexerOutput.TABLE_DELIMITERS_ID, curLexId);
+                            write(LexerOutput.delimiterTableId, curLexId);
                         }
                         clean();
                         add();
@@ -764,19 +840,19 @@ public class Lexer {
                             message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
                         }
                         else {
-                            write(LexerOutput.TABLE_DELIMITERS_ID, curLexId);
+                            write(LexerOutput.delimiterTableId, curLexId);
                         }
                         clean();
                         add();
                     } else {
-                        check(LexerOutput.TABLE_DELIMITERS_ID);
+                        check(LexerOutput.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
                             message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
                         }
                         else {
                             currentState = STATE.DELIMITER;
-                            write(LexerOutput.TABLE_DELIMITERS_ID, curLexId);
+                            write(LexerOutput.delimiterTableId, curLexId);
                             clean();
                             add();
                         }
@@ -813,7 +889,7 @@ public class Lexer {
 
         }
 
-        return new LexerOutput(lexTables, lexemesList, currentState == STATE.ERROR, message);
+        return new LexerOutput(serviceTable, delimiterTable, identifierTable, numberTable, lexemesSeqTable, currentState == STATE.ERROR, message);
     }
 
 
