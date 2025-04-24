@@ -1,11 +1,9 @@
 package com.ilyakrn;
 
 import com.ilyakrn.lexer.Lexer;
-import com.ilyakrn.lexer.LexerOutput;
+import com.ilyakrn.entities.InternalProgramPresentation;
 import com.ilyakrn.parser.Parser;
 
-import java.io.File;
-import java.io.FileReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -18,14 +16,14 @@ public class Main {
 
         Lexer lexer = new Lexer();
         Parser parser = new Parser();
-        LexerOutput lexerOutput = lexer.analyze(prog);
-        if(lexerOutput.isError()){
-            System.out.println("LEXER COMPLETE FAILED: " + lexerOutput.getMessage());
+        InternalProgramPresentation internalProgramPresentation = lexer.analyze(prog);
+        if(internalProgramPresentation.isError()){
+            System.out.println("LEXER COMPLETE FAILED: " + internalProgramPresentation.getMessage());
             return;
         }
         System.out.println("LEXER COMPLETE SUCCESSFUL");
 
-        boolean parserOutput = parser.analyze(lexerOutput);
+        boolean parserOutput = parser.analyze(internalProgramPresentation);
         if(!parserOutput){
             System.out.println("PARSER FAILED: NO MESSAGE");
             return;

@@ -1,6 +1,6 @@
-package com.ilyakrn.lexer.items;
+package com.ilyakrn.entities.items;
 
-public class NumberItem {
+public class ServiceItem {
     private String lexeme;
 
     public String getLexeme() {
@@ -11,7 +11,7 @@ public class NumberItem {
         this.lexeme = lexeme;
     }
 
-    public NumberItem(String lexeme) {
+    public ServiceItem(String lexeme) {
         this.lexeme = lexeme;
     }
 }

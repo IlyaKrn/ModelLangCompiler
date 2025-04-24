@@ -1,8 +1,7 @@
 package com.ilyakrn.parser;
 
-import com.ilyakrn.lexer.LexerOutput;
-import com.ilyakrn.lexer.items.*;
-import com.ilyakrn.parser.items.ParserQueueItem;
+import com.ilyakrn.entities.items.*;
+import com.ilyakrn.entities.InternalProgramPresentation;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -15,32 +14,32 @@ public class Parser {
     private ArrayList<IdentifierItem> identifierTable;
     private ArrayList<NumberItem> numberTable;
 
-    public boolean analyze(LexerOutput lexerOutput) throws Exception {
-        serviceTable = lexerOutput.getServiceTable();
-        delimiterTable = lexerOutput.getDelimiterTable();
-        identifierTable = lexerOutput.getIdentifierTable();
-        numberTable = lexerOutput.getNumberTable();
+    public boolean analyze(InternalProgramPresentation internalProgramPresentation) throws Exception {
+        serviceTable = internalProgramPresentation.getServiceTable();
+        delimiterTable = internalProgramPresentation.getDelimiterTable();
+        identifierTable = internalProgramPresentation.getIdentifierTable();
+        numberTable = internalProgramPresentation.getNumberTable();
 
         Queue<ParserQueueItem> input = new LinkedList<>();
-        for (int i = 0; i < lexerOutput.getLexemesSeqTable().size(); i++) {
+        for (int i = 0; i < internalProgramPresentation.getLexemesSeqTable().size(); i++) {
             String lexemeText = "";
-            switch (lexerOutput.getLexemesSeqTable().get(i).getTableId()){
-                case LexerOutput.serviceTableId:
-                    lexemeText = serviceTable.get(lexerOutput.getLexemesSeqTable().get(i).getLexId()).getLexeme();
+            switch (internalProgramPresentation.getLexemesSeqTable().get(i).getTableId()){
+                case InternalProgramPresentation.serviceTableId:
+                    lexemeText = serviceTable.get(internalProgramPresentation.getLexemesSeqTable().get(i).getLexId()).getLexeme();
                     break;
-                case LexerOutput.delimiterTableId:
-                    lexemeText = delimiterTable.get(lexerOutput.getLexemesSeqTable().get(i).getLexId()).getLexeme();
+                case InternalProgramPresentation.delimiterTableId:
+                    lexemeText = delimiterTable.get(internalProgramPresentation.getLexemesSeqTable().get(i).getLexId()).getLexeme();
                     break;
-                case LexerOutput.identifierTableId:
-                    lexemeText = identifierTable.get(lexerOutput.getLexemesSeqTable().get(i).getLexId()).getLexeme();
+                case InternalProgramPresentation.identifierTableId:
+                    lexemeText = identifierTable.get(internalProgramPresentation.getLexemesSeqTable().get(i).getLexId()).getLexeme();
                     break;
-                case LexerOutput.numberTableId:
-                    lexemeText = numberTable.get(lexerOutput.getLexemesSeqTable().get(i).getLexId()).getLexeme();
+                case InternalProgramPresentation.numberTableId:
+                    lexemeText = numberTable.get(internalProgramPresentation.getLexemesSeqTable().get(i).getLexId()).getLexeme();
                     break;
                 default:
-                    throw new Exception("Invalid table id: " + lexerOutput.getLexemesSeqTable().get(i).getTableId());
+                    throw new Exception("Invalid table id: " + internalProgramPresentation.getLexemesSeqTable().get(i).getTableId());
             }
-            input.add(new ParserQueueItem(lexerOutput.getLexemesSeqTable().get(i).getLexId(), lexerOutput.getLexemesSeqTable().get(i).getTableId(), lexemeText));
+            input.add(new ParserQueueItem(internalProgramPresentation.getLexemesSeqTable().get(i).getLexId(), internalProgramPresentation.getLexemesSeqTable().get(i).getTableId(), lexemeText));
         }
 
         int result = PROG(input);
@@ -74,7 +73,7 @@ public class Parser {
                 next = tempInput.poll();
                 skipped++;
             }
-            return next.getTableId() == LexerOutput.identifierTableId ? 1 + skipped : -1;
+            return next.getTableId() == InternalProgramPresentation.identifierTableId ? 1 + skipped : -1;
         }
     }
     private int isNumber(Queue<ParserQueueItem> input) {
@@ -88,7 +87,7 @@ public class Parser {
                 next = tempInput.poll();
                 skipped++;
             }
-            return next.getTableId() == LexerOutput.numberTableId ? 1 + skipped : -1;
+            return next.getTableId() == InternalProgramPresentation.numberTableId ? 1 + skipped : -1;
         }
     }
 
@@ -644,19 +643,19 @@ public class Parser {
         int result = T(tempInput);
         if (result == -1)
             return -1;
-        IdentifierItem.TYPE type = null;
+        Type type = null;
         for (int i = 0; i < result - 1; i++) {
             tempInput.poll();
         }
         switch (tempInput.poll().getLexeme()){
             case "int":
-                type = IdentifierItem.TYPE.INT;
+                type = Type.INT;
                 break;
             case "float":
-                type = IdentifierItem.TYPE.FLOAT;
+                type = Type.FLOAT;
                 break;
             case "bool":
-                type = IdentifierItem.TYPE.BOOL;
+                type = Type.BOOL;
                 break;
             default:
                 throw new Exception("unresolved type");

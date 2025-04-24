@@ -1,4 +1,4 @@
-package com.ilyakrn.lexer.items;
+package com.ilyakrn.entities.items;
 
 public class DelimiterItem {
     private String lexeme;

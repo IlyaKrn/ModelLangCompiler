@@ -1,4 +1,4 @@
-package com.ilyakrn.lexer.items;
+package com.ilyakrn.entities.items;
 
 public class LexemesSeqItem {
     private final int tableId;

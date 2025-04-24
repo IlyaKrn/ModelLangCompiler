@@ -1,4 +1,4 @@
-package com.ilyakrn.parser.items;
+package com.ilyakrn.entities.items;
 
 public class ParserQueueItem {
     private final int lexId;

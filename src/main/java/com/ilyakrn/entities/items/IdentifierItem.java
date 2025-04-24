@@ -1,20 +1,16 @@
-package com.ilyakrn.lexer.items;
+package com.ilyakrn.entities.items;
 
 public class IdentifierItem {
 
-    public enum TYPE {
-        INT, FLOAT, BOOL
-    }
-
     private final String lexeme;
     private boolean isInit;
-    private TYPE type;
+    private Type type;
 
     public void setInit(boolean init) {
         isInit = init;
     }
 
-    public void setType(TYPE type) {
+    public void setType(Type type) {
         this.type = type;
     }
 
@@ -26,11 +22,11 @@ public class IdentifierItem {
         return isInit;
     }
 
-    public TYPE getType() {
+    public Type getType() {
         return type;
     }
 
-    public IdentifierItem(String lexeme, boolean isInit, TYPE type) {
+    public IdentifierItem(String lexeme, boolean isInit, Type type) {
         this.lexeme = lexeme;
         this.isInit = isInit;
         this.type = type;

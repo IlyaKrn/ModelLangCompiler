@@ -1,10 +1,10 @@
-package com.ilyakrn.lexer;
+package com.ilyakrn.entities;
 
-import com.ilyakrn.lexer.items.*;
+import com.ilyakrn.entities.items.*;
 
 import java.util.ArrayList;
 
-public final class LexerOutput {
+public final class InternalProgramPresentation {
 
     public static final int serviceTableId = 0;
     public static final int delimiterTableId = 1;
@@ -22,7 +22,7 @@ public final class LexerOutput {
     private final boolean isError;
     private final String message;
 
-    public LexerOutput(ArrayList<ServiceItem> serviceTable, ArrayList<DelimiterItem> delimiterTable, ArrayList<IdentifierItem> identifierTable, ArrayList<NumberItem> numberTable, ArrayList<LexemesSeqItem> lexemesSeqTable, ArrayList<BinOperationItem> binOperationTable, boolean isError, String message) {
+    public InternalProgramPresentation(ArrayList<ServiceItem> serviceTable, ArrayList<DelimiterItem> delimiterTable, ArrayList<IdentifierItem> identifierTable, ArrayList<NumberItem> numberTable, ArrayList<LexemesSeqItem> lexemesSeqTable, ArrayList<BinOperationItem> binOperationTable, boolean isError, String message) {
         this.serviceTable = serviceTable;
         this.delimiterTable = delimiterTable;
         this.identifierTable = identifierTable;
