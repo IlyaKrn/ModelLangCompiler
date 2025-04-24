@@ -2,6 +2,9 @@ package com.ilyakrn.parser;
 
 import com.ilyakrn.entities.items.*;
 import com.ilyakrn.entities.InternalProgramPresentation;
+import com.ilyakrn.exceptions.external.SemanticException;
+import com.ilyakrn.exceptions.external.SyntaxException;
+import com.ilyakrn.exceptions.internal.InternalParserException;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -14,7 +17,7 @@ public class Parser {
     private ArrayList<IdentifierItem> identifierTable;
     private ArrayList<NumberItem> numberTable;
 
-    public boolean analyze(InternalProgramPresentation internalProgramPresentation) throws Exception {
+    public boolean analyze(InternalProgramPresentation internalProgramPresentation) throws InternalParserException, SyntaxException, SemanticException {
         serviceTable = internalProgramPresentation.getServiceTable();
         delimiterTable = internalProgramPresentation.getDelimiterTable();
         identifierTable = internalProgramPresentation.getIdentifierTable();
@@ -37,7 +40,7 @@ public class Parser {
                     lexemeText = numberTable.get(internalProgramPresentation.getLexemesSeqTable().get(i).getLexId()).getLexeme();
                     break;
                 default:
-                    throw new Exception("Invalid table id: " + internalProgramPresentation.getLexemesSeqTable().get(i).getTableId());
+                    throw new InternalParserException("Invalid table id: " + internalProgramPresentation.getLexemesSeqTable().get(i).getTableId());
             }
             input.add(new ParserQueueItem(internalProgramPresentation.getLexemesSeqTable().get(i).getLexId(), internalProgramPresentation.getLexemesSeqTable().get(i).getTableId(), lexemeText));
         }
@@ -638,7 +641,7 @@ public class Parser {
         return result;
     }
 
-    private int DESC(Queue<ParserQueueItem> input) throws Exception {
+    private int DESC(Queue<ParserQueueItem> input) throws InternalParserException {
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         int result = T(tempInput);
         if (result == -1)
@@ -658,7 +661,7 @@ public class Parser {
                 type = Type.BOOL;
                 break;
             default:
-                throw new Exception("unresolved type");
+                throw new InternalParserException("unresolved type");
         }
         ArrayList<Integer> ids = new ArrayList<>();
 
@@ -691,14 +694,15 @@ public class Parser {
         }
         for (Integer id : ids) {
             if(identifierTable.get(id).isInit())
-                throw new Exception(id + " has already been initialized");
+                throw new SemanticException(id + " has already been initialized");
             identifierTable.get(id).setInit(true);
             identifierTable.get(id).setType(type);
         }
 
         return result;
     }
-    private int PROG(Queue<ParserQueueItem> input) throws Exception {
+
+    private int PROG(Queue<ParserQueueItem> input) throws InternalParserException, SyntaxException, SemanticException {
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         int result = nextLexemeIs(tempInput, "{");
         if (result == -1)

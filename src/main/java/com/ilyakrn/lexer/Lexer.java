@@ -2,6 +2,8 @@ package com.ilyakrn.lexer;
 
 import com.ilyakrn.entities.InternalProgramPresentation;
 import com.ilyakrn.entities.items.*;
+import com.ilyakrn.exceptions.external.LexicalException;
+import com.ilyakrn.exceptions.internal.InternalLexerException;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -126,7 +128,19 @@ public class Lexer {
         return currentChar >= 'A' && currentChar <= 'Z' || currentChar >= 'a' && currentChar <= 'z';
     }
 
-    private void check(int tableId) throws Exception {
+    private void clean(){
+        lexBuffer = "";
+    }
+
+    private void add(){
+        lexBuffer += currentChar;
+    }
+
+    private void read() {
+        currentChar = input.poll();
+    }
+
+    private void check(int tableId) throws InternalLexerException {
         switch (tableId){
             case InternalProgramPresentation.serviceTableId:
                 curTableId = tableId;
@@ -169,15 +183,15 @@ public class Lexer {
                 curLexId = -1;
                 break;
             default:
-                throw new Exception("table with id '" + tableId + "' not exists");
+                throw new InternalLexerException("table with id '" + tableId + "' not exists");
         }
     }
 
-    private void put(int tableId) throws Exception {
+    private void put(int tableId) throws InternalLexerException {
         switch (tableId){
             case InternalProgramPresentation.serviceTableId:
             case InternalProgramPresentation.delimiterTableId:
-                throw new Exception("table with id '" + tableId + "' can not modify");
+                throw new InternalLexerException("table with id '" + tableId + "' can not modify");
             case InternalProgramPresentation.identifierTableId:
                 curTableId = tableId;
                 int findId = -1;
@@ -213,50 +227,38 @@ public class Lexer {
                 }
                 break;
             default:
-                throw new Exception("table with id '" + tableId + "' not exists");
+                throw new InternalLexerException("table with id '" + tableId + "' not exists");
         }
     }
 
-    private void clean(){
-        lexBuffer = "";
-    }
-
-    private void add(){
-        lexBuffer += currentChar;
-    }
-
-    private void read() {
-        currentChar = input.poll();
-    }
-
-    private void write(int tableId, int lexId) throws Exception {
+    private void write(int tableId, int lexId) throws InternalLexerException {
         switch (tableId){
             case InternalProgramPresentation.serviceTableId:
                 if (lexId >= serviceTable.size() || lexId < 0)
-                    throw new Exception("lexeme in table '" + tableId + "' with id '" + lexId + "' not exists");
+                    throw new InternalLexerException("lexeme in table '" + tableId + "' with id '" + lexId + "' not exists");
                 lexemesSeqTable.add(new LexemesSeqItem(tableId, lexId));
                 break;
             case InternalProgramPresentation.delimiterTableId:
                 if (lexId >= delimiterTable.size() || lexId < 0)
-                    throw new Exception("lexeme in table '" + tableId + "' with id '" + lexId + "' not exists");
+                    throw new InternalLexerException("lexeme in table '" + tableId + "' with id '" + lexId + "' not exists");
                 lexemesSeqTable.add(new LexemesSeqItem(tableId, lexId));
                 break;
             case InternalProgramPresentation.identifierTableId:
                 if (lexId >= identifierTable.size() || lexId < 0)
-                    throw new Exception("lexeme in table '" + tableId + "' with id '" + lexId + "' not exists");
+                    throw new InternalLexerException("lexeme in table '" + tableId + "' with id '" + lexId + "' not exists");
                 lexemesSeqTable.add(new LexemesSeqItem(tableId, lexId));
                 break;
             case InternalProgramPresentation.numberTableId:
                 if (lexId >= numberTable.size() || lexId < 0)
-                    throw new Exception("lexeme in table '" + tableId + "' with id '" + lexId + "' not exists");
+                    throw new InternalLexerException("lexeme in table '" + tableId + "' with id '" + lexId + "' not exists");
                 lexemesSeqTable.add(new LexemesSeqItem(tableId, lexId));
                 break;
             default:
-                throw new Exception("table with id '" + tableId + "' not exists");
+                throw new InternalLexerException("table with id '" + tableId + "' not exists");
         }
     }
 
-    public InternalProgramPresentation analyze(String progText) throws Exception {
+    public InternalProgramPresentation analyze(String progText) throws InternalLexerException, LexicalException {
         identifierTable.clear();
         numberTable.clear();
         lexemesSeqTable.clear();
@@ -901,13 +903,17 @@ public class Lexer {
                     }
                     break;
                 default:
-                    throw new Exception("can not resolve state '" + currentState.name() + "'");
+                    throw new InternalLexerException("can not resolve state '" + currentState.name() + "'");
 
             }
 
         }
 
-        return new InternalProgramPresentation(serviceTable, delimiterTable, identifierTable, numberTable, lexemesSeqTable, binOperationTable, currentState == STATE.ERROR, message);
+        if (currentState == STATE.ERROR) {
+            throw new LexicalException(message);
+        }
+
+        return new InternalProgramPresentation(serviceTable, delimiterTable, identifierTable, numberTable, lexemesSeqTable, binOperationTable);
     }
 
 

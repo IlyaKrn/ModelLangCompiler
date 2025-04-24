@@ -19,18 +19,13 @@ public final class InternalProgramPresentation {
 
     private final ArrayList<LexemesSeqItem> lexemesSeqTable;
 
-    private final boolean isError;
-    private final String message;
-
-    public InternalProgramPresentation(ArrayList<ServiceItem> serviceTable, ArrayList<DelimiterItem> delimiterTable, ArrayList<IdentifierItem> identifierTable, ArrayList<NumberItem> numberTable, ArrayList<LexemesSeqItem> lexemesSeqTable, ArrayList<BinOperationItem> binOperationTable, boolean isError, String message) {
+    public InternalProgramPresentation(ArrayList<ServiceItem> serviceTable, ArrayList<DelimiterItem> delimiterTable, ArrayList<IdentifierItem> identifierTable, ArrayList<NumberItem> numberTable, ArrayList<LexemesSeqItem> lexemesSeqTable, ArrayList<BinOperationItem> binOperationTable) {
         this.serviceTable = serviceTable;
         this.delimiterTable = delimiterTable;
         this.identifierTable = identifierTable;
         this.numberTable = numberTable;
         this.lexemesSeqTable = lexemesSeqTable;
         this.binOperationTable = binOperationTable;
-        this.isError = isError;
-        this.message = message;
     }
 
     public ArrayList<ServiceItem> getServiceTable() {
@@ -53,18 +48,14 @@ public final class InternalProgramPresentation {
         return lexemesSeqTable;
     }
 
-    public boolean isError() {
-        return isError;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("LexerOutput:\nTables:\n");
+        sb.append("=================BIN_OPS=================\n");
+        for (int i = 0; i < numberTable.size(); i++) {
+            sb.append(String.format("%s\t%s\t%s\t%s\t%s\n", i, binOperationTable.get(i).getOperation(), binOperationTable.get(i).getOperand1(), binOperationTable.get(i).getOperand2(), binOperationTable.get(i).getResult()));
+        }
         sb.append("=================SERVICE=================\n");
         for (int i = 0; i < serviceTable.size(); i++) {
             sb.append(String.format("%s\t%s\n", i, serviceTable.get(i).getLexeme()));
@@ -104,14 +95,6 @@ public final class InternalProgramPresentation {
                     break;
             }
             sb.append(String.format("%s\t%s\t%s\t%s\t\t\t\t%s\n", i, lexemesSeqTable.get(i).getLexId(), lexemesSeqTable.get(i).getTableId(), tableName, lexemeName ));
-        }
-
-        sb.append(isError ? "===================ERROR===================\n" : "====================OK=====================\n");
-        if(!message.isEmpty()){
-            sb.append(message+"\n");
-        }
-        else {
-            sb.append("NO LEXER MESSAGE\n");
         }
 
         return sb.toString();
