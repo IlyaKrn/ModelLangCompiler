@@ -639,21 +639,37 @@ public class Parser {
         return result;
     }
 
-    private int DESC(Queue<ParserQueueItem> input){
+    private int DESC(Queue<ParserQueueItem> input) throws Exception {
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         int result = T(tempInput);
         if (result == -1)
             return -1;
-        for (int i = 0; i < result; i++) {
+        IdentifierItem.TYPE type = null;
+        for (int i = 0; i < result - 1; i++) {
             tempInput.poll();
         }
+        switch (tempInput.poll().getLexeme()){
+            case "int":
+                type = IdentifierItem.TYPE.INT;
+                break;
+            case "float":
+                type = IdentifierItem.TYPE.FLOAT;
+                break;
+            case "bool":
+                type = IdentifierItem.TYPE.BOOL;
+                break;
+            default:
+                throw new Exception("unresolved type");
+        }
+        ArrayList<Integer> ids = new ArrayList<>();
 
         int result1 = isIdentifier(tempInput);
         if (result1 == -1)
             return -1;
-        for (int i = 0; i < result1; i++) {
+        for (int i = 0; i < result1 - 1; i++) {
             tempInput.poll();
         }
+        ids.add(tempInput.poll().getLexId());
         result += result1;
 
         int result2 = nextLexemeIs(tempInput, ",");
@@ -666,17 +682,24 @@ public class Parser {
             int result3 = isIdentifier(tempInput);
             if (result3 == -1)
                 return -1;
-            for (int i = 0; i < result3; i++) {
+            for (int i = 0; i < result3 - 1; i++) {
                 tempInput.poll();
             }
+            ids.add(tempInput.poll().getLexId());
             result += result3;
 
             result2 = nextLexemeIs(tempInput, ",");
         }
+        for (Integer id : ids) {
+            if(identifierTable.get(id).isInit())
+                throw new Exception(id + " has already been initialized");
+            identifierTable.get(id).setInit(true);
+            identifierTable.get(id).setType(type);
+        }
 
         return result;
     }
-    private int PROG(Queue<ParserQueueItem> input){
+    private int PROG(Queue<ParserQueueItem> input) throws Exception {
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         int result = nextLexemeIs(tempInput, "{");
         if (result == -1)

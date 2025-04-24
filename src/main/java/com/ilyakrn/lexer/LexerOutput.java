@@ -15,18 +15,20 @@ public final class LexerOutput {
     private final ArrayList<DelimiterItem> delimiterTable;
     private final ArrayList<IdentifierItem> identifierTable;
     private final ArrayList<NumberItem> numberTable;
+    private final ArrayList<BinOperationItem> binOperationTable;
 
     private final ArrayList<LexemesSeqItem> lexemesSeqTable;
 
     private final boolean isError;
     private final String message;
 
-    public LexerOutput(ArrayList<ServiceItem> serviceTable, ArrayList<DelimiterItem> delimiterTable, ArrayList<IdentifierItem> identifierTable, ArrayList<NumberItem> numberTable, ArrayList<LexemesSeqItem> lexemesSeqTable, boolean isError, String message) {
+    public LexerOutput(ArrayList<ServiceItem> serviceTable, ArrayList<DelimiterItem> delimiterTable, ArrayList<IdentifierItem> identifierTable, ArrayList<NumberItem> numberTable, ArrayList<LexemesSeqItem> lexemesSeqTable, ArrayList<BinOperationItem> binOperationTable, boolean isError, String message) {
         this.serviceTable = serviceTable;
         this.delimiterTable = delimiterTable;
         this.identifierTable = identifierTable;
         this.numberTable = numberTable;
         this.lexemesSeqTable = lexemesSeqTable;
+        this.binOperationTable = binOperationTable;
         this.isError = isError;
         this.message = message;
     }
