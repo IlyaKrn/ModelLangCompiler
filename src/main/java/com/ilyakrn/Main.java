@@ -19,18 +19,23 @@ public class Main {
         Parser parser = new Parser();
 
         try {
+            System.out.println("==================COMPILER==================");
             InternalProgramPresentation internalProgramPresentation = lexer.analyze(prog);
             System.out.println("LEXER COMPLETE SUCCESSFUL");
 
             parser.analyze(internalProgramPresentation);
             System.out.println("PARSER COMPLETE SUCCESSFUL");
 
-        } catch (CompilerInternalException e){
-            System.out.println("COMPILER INTERNAL ERROR:\n" + e.getMessage());
+            System.out.println("====================END=====================");
         } catch (CompilerExternalException e){
             System.out.println("COMPILATION FAILED:\n" + e.getMessage());
+            System.out.println("====================END=====================");
+        } catch (CompilerInternalException e){
+            System.out.println("COMPILER INTERNAL ERROR:\n" + e.getMessage());
+            System.out.println("====================END=====================");
         } catch (Exception e){
             System.out.println("COMPILER FATAL ERROR:\n" + e.getMessage());
+            System.out.println("====================END=====================");
             e.printStackTrace();
         }
     }

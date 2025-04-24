@@ -36,6 +36,9 @@ public class Lexer {
     private int curLexId;
     private int curTableId;
 
+    private int curLine;
+    private int curCol;
+
     private final ArrayList<ServiceItem> serviceTable;
     private final ArrayList<DelimiterItem> delimiterTable;
     private final ArrayList<IdentifierItem> identifierTable;
@@ -55,6 +58,8 @@ public class Lexer {
         numberTable = new ArrayList<>();
         lexemesSeqTable = new ArrayList<>();
         binOperationTable = new ArrayList<>();
+        curLine = 1;
+        curCol = 1;
 
         serviceTable.add(new ServiceItem("true"));
         serviceTable.add(new ServiceItem("false"));
@@ -138,6 +143,13 @@ public class Lexer {
 
     private void read() {
         currentChar = input.poll();
+        if (currentChar == '\n'){
+            curLine++;
+            curCol = 1;
+        }
+        else {
+            curCol++;
+        }
     }
 
     private void check(int tableId) throws InternalLexerException {
@@ -278,7 +290,7 @@ public class Lexer {
                 case READ:
                     read();
                     if(currentChar == null){
-                        message = "PROGRAM END REACHED BEFORE '}'";
+                        message = "program end reached before '}'";
                         currentState = STATE.ERROR;
                     } else if (currentChar == ' ') {
                         clean();
@@ -311,7 +323,7 @@ public class Lexer {
                 case NUM_BIN:
                     read();
                     if(currentChar == null){
-                        message = "PROGRAM END REACHED BEFORE '}'";
+                        message = "program end reached before '}'";
                         currentState = STATE.ERROR;
                     } else if (isBinAllow()) {
                         add();
@@ -343,7 +355,7 @@ public class Lexer {
                         currentState = STATE.NUM_HEX;
                         add();
                     } else if (isLetter()) {
-                        message = "UNRESOLVED CHAR '"+currentChar+"'";
+                        message = "unresolved character '" + currentChar + "'";
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
@@ -356,7 +368,7 @@ public class Lexer {
                 case NUM_OCT:
                     read();
                     if(currentChar == null){
-                        message = "PROGRAM END REACHED BEFORE '}'";
+                        message = "program end reached before '}'";
                         currentState = STATE.ERROR;
                     } else if (isOctAllow()) {
                         add();
@@ -382,7 +394,7 @@ public class Lexer {
                         currentState = STATE.NUM_HEX;
                         add();
                     } else if (isLetter()) {
-                        message = "UNRESOLVED CHAR '"+currentChar+"'";
+                        message = "unresolved character '" + currentChar + "'";
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
@@ -395,7 +407,7 @@ public class Lexer {
                 case NUM_DEC:
                     read();
                     if(currentChar == null){
-                        message = "PROGRAM END REACHED BEFORE '}'";
+                        message = "program end reached before '}'";
                         currentState = STATE.ERROR;
                     } else if (isDecAllow()) {
                         add();
@@ -415,7 +427,7 @@ public class Lexer {
                         currentState = STATE.NUM_HEX;
                         add();
                     } else if (isLetter()) {
-                        message = "UNRESOLVED CHAR '"+currentChar+"'";
+                        message = "unresolved character '" + currentChar + "'";
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
@@ -428,7 +440,7 @@ public class Lexer {
                 case NUM_HEX:
                     read();
                     if(currentChar == null){
-                        message = "PROGRAM END REACHED BEFORE '}'";
+                        message = "program end reached before '}'";
                         currentState = STATE.ERROR;
                     } else if (isHexAllow()) {
                         add();
@@ -436,14 +448,14 @@ public class Lexer {
                         currentState = STATE.NUM_HEX_FIN;
                         add();
                     } else {
-                        message = "UNRESOLVED CHAR '" + currentChar + "'";
+                        message = "unresolved character '" + currentChar + "'";
                         currentState = STATE.ERROR;
                     }
                     break;
                 case IDENT:
                     read();
                     if(currentChar == null){
-                        message = "PROGRAM END REACHED BEFORE '}'";
+                        message = "program end reached before '}'";
                         currentState = STATE.ERROR;
                     } else if (isLetter()) {
                         add();
@@ -473,7 +485,7 @@ public class Lexer {
                 case NUM_DEC_FIN:
                     read();
                     if(currentChar == null){
-                        message = "PROGRAM END REACHED BEFORE '}'";
+                        message = "program end reached before '}'";
                         currentState = STATE.ERROR;
                     } else if (currentChar == 'H' || currentChar == 'h') {
                         currentState = STATE.NUM_HEX_FIN;
@@ -482,7 +494,7 @@ public class Lexer {
                         currentState = STATE.NUM_HEX;
                         add();
                     } else if (isLetter() || isNumber()) {
-                        message = "UNRESOLVED CHAR '"+currentChar+"'";
+                        message = "unresolved character '" + currentChar + "'";
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
@@ -496,10 +508,10 @@ public class Lexer {
                 case NUM_HEX_FIN:
                     read();
                     if(currentChar == null){
-                        message = "PROGRAM END REACHED BEFORE '}'";
+                        message = "program end reached before '}'";
                         currentState = STATE.ERROR;
                     } else if (isLetter() || isNumber()) {
-                        message = "UNRESOLVED CHAR '"+currentChar+"'";
+                        message = "unresolved character '" + currentChar + "'";
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
@@ -512,20 +524,20 @@ public class Lexer {
                 case NUM_REAL_POINT_1:
                     read();
                     if(currentChar == null){
-                        message = "PROGRAM END REACHED BEFORE '}'";
+                        message = "program end reached before '}'";
                         currentState = STATE.ERROR;
                     } else if (isNumber()) {
                         currentState = STATE.NUM_REAL_POINT_2;
                         add();
                     } else {
-                        message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                        message = "unresolved character '" + currentChar + "'";
                         currentState = STATE.ERROR;
                     }
                     break;
                 case NUM_REAL_POINT_2:
                     read();
                     if(currentChar == null){
-                        message = "PROGRAM END REACHED BEFORE '}'";
+                        message = "program end reached before '}'";
                         currentState = STATE.ERROR;
                     } else if (isNumber()) {
                         add();
@@ -533,7 +545,7 @@ public class Lexer {
                         currentState = STATE.NUM_REAL_POINT_ORDER_START_1;
                         add();
                     } else if (isLetter() || currentChar == '.') {
-                        message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                        message = "unresolved character '" + currentChar + "'";
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
@@ -546,7 +558,7 @@ public class Lexer {
                 case NUM_REAL_POINT_ORDER_START_1:
                     read();
                     if(currentChar == null){
-                        message = "CAN NOT RESOLVE REAL'S ORDER";
+                        message = "can not resolve real order";
                         currentState = STATE.ERROR;
                     } else if (isNumber()) {
                         currentState = STATE.NUM_REAL_POINT_ORDER;
@@ -555,7 +567,7 @@ public class Lexer {
                         currentState = STATE.NUM_REAL_POINT_ORDER_START_2;
                         add();
                     } else if (isLetter() || currentChar == '.') {
-                        message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                        message = "unresolved character '" + currentChar + "'";
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
@@ -568,13 +580,13 @@ public class Lexer {
                 case NUM_REAL_POINT_ORDER_START_2:
                     read();
                     if(currentChar == null){
-                        message = "CAN NOT RESOLVE REAL'S ORDER";
+                        message = "can not resolve real order";
                         currentState = STATE.ERROR;
                     } else if (isNumber()) {
                         currentState = STATE.NUM_REAL_POINT_ORDER;
                         add();
                     } else if (isLetter() || currentChar == '.') {
-                        message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                        message = "unresolved character '" + currentChar + "'";
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
@@ -587,12 +599,12 @@ public class Lexer {
                 case NUM_REAL_POINT_ORDER:
                     read();
                     if(currentChar == null){
-                        message = "PROGRAM END REACHED BEFORE '}'";
+                        message = "program end reached before '}'";
                         currentState = STATE.ERROR;
                     } else if (isNumber()) {
                         add();
                     } else if (isLetter() || currentChar == '.') {
-                        message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                        message = "unresolved character '" + currentChar + "'";
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
@@ -605,7 +617,7 @@ public class Lexer {
                 case NUM_REAL_ORDER_OR_HEX:
                     read();
                     if(currentChar == null){
-                        message = "PROGRAM END REACHED BEFORE '}'";
+                        message = "program end reached before '}'";
                         currentState = STATE.ERROR;
                     } else if (isNumber()) {
                         add();
@@ -618,7 +630,7 @@ public class Lexer {
                         currentState = STATE.NUM_HEX_FIN;
                         add();
                     } else if (isLetter() || currentChar == '.') {
-                        message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                        message = "unresolved character '" + currentChar + "'";
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
@@ -631,12 +643,12 @@ public class Lexer {
                 case NUM_REAL_ORDER:
                     read();
                     if(currentChar == null){
-                        message = "PROGRAM END REACHED BEFORE '}'";
+                        message = "program end reached before '}'";
                         currentState = STATE.ERROR;
                     } else if (isNumber()) {
                         add();
                     } else if (isLetter() || currentChar == '.' || currentChar == '+' || currentChar == '-') {
-                        message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                        message = "unresolved character '" + currentChar + "'";
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
@@ -648,7 +660,7 @@ public class Lexer {
                     break;
                 case DELIMITER:
                     if(currentChar == null){
-                        message = "PROGRAM END REACHED BEFORE '}'";
+                        message = "program end reached before '}'";
                         currentState = STATE.ERROR;
                     }
                     else if(currentChar == ' '){
@@ -668,7 +680,7 @@ public class Lexer {
                         check(InternalProgramPresentation.delimiterTableId);
                         if (curLexId == -1){
                             currentState = STATE.ERROR;
-                            message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                            message = "unresolved character '" + currentChar + "'";
                         }
                         else {
                             if (currentChar == '}'){
@@ -686,14 +698,14 @@ public class Lexer {
                 case LESS_THEN_EQUAL:
                     read();
                     if(currentChar == null){
-                        message = "PROGRAM END REACHED BEFORE '}'";
+                        message = "program end reached before '}'";
                         currentState = STATE.ERROR;
                     } else if(currentChar == '='){
                         add();
                         check(InternalProgramPresentation.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
-                            message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                            message = "unresolved character '" + currentChar + "'";
                         }
                         else {
                             currentState = STATE.READ;
@@ -705,7 +717,7 @@ public class Lexer {
                         check(InternalProgramPresentation.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
-                            message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                            message = "unresolved character '" + currentChar + "'";
                         }
                         else {
                             currentState = STATE.READ;
@@ -717,7 +729,7 @@ public class Lexer {
                         check(InternalProgramPresentation.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
-                            message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                            message = "unresolved character '" + currentChar + "'";
                         }
                         else {
                             write(InternalProgramPresentation.delimiterTableId, curLexId);
@@ -729,7 +741,7 @@ public class Lexer {
                         check(InternalProgramPresentation.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
-                            message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                            message = "unresolved character '" + currentChar + "'";
                         }
                         else {
                             write(InternalProgramPresentation.delimiterTableId, curLexId);
@@ -741,7 +753,7 @@ public class Lexer {
                         check(InternalProgramPresentation.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
-                            message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                            message = "unresolved character '" + currentChar + "'";
                         }
                         else {
                             write(InternalProgramPresentation.delimiterTableId, curLexId);
@@ -753,7 +765,7 @@ public class Lexer {
                         check(InternalProgramPresentation.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
-                            message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                            message = "unresolved character '" + currentChar + "'";
                         }
                         else {
                             write(InternalProgramPresentation.delimiterTableId, curLexId);
@@ -764,7 +776,7 @@ public class Lexer {
                         currentState = STATE.NUM_REAL_POINT_1;
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
-                            message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                            message = "unresolved character '" + currentChar + "'";
                         }
                         else {
                             write(InternalProgramPresentation.delimiterTableId, curLexId);
@@ -775,7 +787,7 @@ public class Lexer {
                         check(InternalProgramPresentation.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
-                            message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                            message = "unresolved character '" + currentChar + "'";
                         }
                         else {
                             currentState = STATE.DELIMITER;
@@ -788,7 +800,7 @@ public class Lexer {
                 case COMMENT_START:
                     read();
                     if(currentChar == null){
-                        message = "PROGRAM END REACHED BEFORE '}'";
+                        message = "program end reached before '}'";
                         currentState = STATE.ERROR;
                     } else if(currentChar == ' '){
                         currentState = STATE.READ;
@@ -796,7 +808,7 @@ public class Lexer {
                         check(InternalProgramPresentation.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
-                            message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                            message = "unresolved character '" + currentChar + "'";
                         }
                         else {
                             write(InternalProgramPresentation.delimiterTableId, curLexId);
@@ -810,7 +822,7 @@ public class Lexer {
                         check(InternalProgramPresentation.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
-                            message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                            message = "unresolved character '" + currentChar + "'";
                         }
                         else {
                             write(InternalProgramPresentation.delimiterTableId, curLexId);
@@ -822,7 +834,7 @@ public class Lexer {
                         check(InternalProgramPresentation.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
-                            message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                            message = "unresolved character '" + currentChar + "'";
                         }
                         else {
                             write(InternalProgramPresentation.delimiterTableId, curLexId);
@@ -834,7 +846,7 @@ public class Lexer {
                         check(InternalProgramPresentation.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
-                            message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                            message = "unresolved character '" + currentChar + "'";
                         }
                         else {
                             write(InternalProgramPresentation.delimiterTableId, curLexId);
@@ -846,7 +858,7 @@ public class Lexer {
                         check(InternalProgramPresentation.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
-                            message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                            message = "unresolved character '" + currentChar + "'";
                         }
                         else {
                             write(InternalProgramPresentation.delimiterTableId, curLexId);
@@ -857,7 +869,7 @@ public class Lexer {
                         currentState = STATE.NUM_REAL_POINT_1;
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
-                            message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                            message = "unresolved character '" + currentChar + "'";
                         }
                         else {
                             write(InternalProgramPresentation.delimiterTableId, curLexId);
@@ -868,7 +880,7 @@ public class Lexer {
                         check(InternalProgramPresentation.delimiterTableId);
                         if(curLexId == -1){
                             currentState = STATE.ERROR;
-                            message = "CAN NOT RESOLVE CHAR '"+currentChar+"'";
+                            message = "unresolved character '" + currentChar + "'";
                         }
                         else {
                             currentState = STATE.DELIMITER;
@@ -882,7 +894,7 @@ public class Lexer {
                     read();
                     add();
                     if(currentChar == null){
-                        message = "PROGRAM END REACHED BEFORE '}'";
+                        message = "program end reached before '}'";
                         currentState = STATE.ERROR;
                     } else if(currentChar == '*') {
                         currentState = STATE.COMMENT_END;
@@ -891,7 +903,7 @@ public class Lexer {
                 case COMMENT_END:
                     read();
                     if(currentChar == null){
-                        message = "PROGRAM END REACHED BEFORE '}'";
+                        message = "program end reached before '}'";
                         currentState = STATE.ERROR;
                     } else if(currentChar == '/') {
                         currentState = STATE.READ;
@@ -910,7 +922,7 @@ public class Lexer {
         }
 
         if (currentState == STATE.ERROR) {
-            throw new LexicalException(message);
+            throw new LexicalException(curLine + ":" + (curCol - 1) + "\t" + message);
         }
 
         return new InternalProgramPresentation(serviceTable, delimiterTable, identifierTable, numberTable, lexemesSeqTable, binOperationTable);
