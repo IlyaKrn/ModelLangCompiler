@@ -99,19 +99,62 @@ public class Lexer {
         delimiterTable.add(new DelimiterItem("{"));
         delimiterTable.add(new DelimiterItem("}"));
 
-        binOperationTable.add(new BinOperationItem(">", Type.INT, Type.INT, Type.INT));
-        binOperationTable.add(new BinOperationItem("<", Type.INT, Type.INT, Type.INT));
-        binOperationTable.add(new BinOperationItem("<>", Type.INT, Type.INT, Type.INT));
-        binOperationTable.add(new BinOperationItem(">=", Type.INT, Type.INT, Type.INT));
-        binOperationTable.add(new BinOperationItem("<=", Type.INT, Type.INT, Type.INT));
-        binOperationTable.add(new BinOperationItem("=", Type.INT, Type.INT, Type.INT));
+        binOperationTable.add(new BinOperationItem(">", Type.INT, Type.INT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem(">", Type.INT, Type.FLOAT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem(">", Type.FLOAT, Type.INT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem(">", Type.FLOAT, Type.FLOAT, Type.BOOL));
+
+        binOperationTable.add(new BinOperationItem("<", Type.INT, Type.INT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem("<", Type.INT, Type.FLOAT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem("<", Type.FLOAT, Type.INT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem("<", Type.FLOAT, Type.FLOAT, Type.BOOL));
+
+        binOperationTable.add(new BinOperationItem("<>", Type.INT, Type.INT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem("<>", Type.INT, Type.FLOAT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem("<>", Type.FLOAT, Type.INT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem("<>", Type.FLOAT, Type.FLOAT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem("<>", Type.BOOL, Type.BOOL, Type.BOOL));
+
+        binOperationTable.add(new BinOperationItem(">=", Type.INT, Type.INT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem(">=", Type.INT, Type.FLOAT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem(">=", Type.FLOAT, Type.INT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem(">=", Type.FLOAT, Type.FLOAT, Type.BOOL));
+
+        binOperationTable.add(new BinOperationItem("<=", Type.INT, Type.INT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem("<=", Type.INT, Type.FLOAT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem("<=", Type.FLOAT, Type.INT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem("<=", Type.FLOAT, Type.FLOAT, Type.BOOL));
+
+        binOperationTable.add(new BinOperationItem("=",  Type.INT, Type.INT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem("=",  Type.INT, Type.FLOAT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem("=",  Type.FLOAT, Type.INT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem("=",  Type.FLOAT, Type.FLOAT, Type.BOOL));
+        binOperationTable.add(new BinOperationItem("=",  Type.BOOL, Type.BOOL, Type.BOOL));
+
         binOperationTable.add(new BinOperationItem("+", Type.INT, Type.INT, Type.INT));
+        binOperationTable.add(new BinOperationItem("+", Type.INT, Type.FLOAT, Type.FLOAT));
+        binOperationTable.add(new BinOperationItem("+", Type.FLOAT, Type.INT, Type.FLOAT));
+        binOperationTable.add(new BinOperationItem("+", Type.FLOAT, Type.FLOAT, Type.FLOAT));
+
         binOperationTable.add(new BinOperationItem("-", Type.INT, Type.INT, Type.INT));
+        binOperationTable.add(new BinOperationItem("-", Type.INT, Type.FLOAT, Type.FLOAT));
+        binOperationTable.add(new BinOperationItem("-", Type.FLOAT, Type.INT, Type.FLOAT));
+        binOperationTable.add(new BinOperationItem("-", Type.FLOAT, Type.FLOAT, Type.FLOAT));
+
         binOperationTable.add(new BinOperationItem("*", Type.INT, Type.INT, Type.INT));
+        binOperationTable.add(new BinOperationItem("*", Type.INT, Type.FLOAT, Type.FLOAT));
+        binOperationTable.add(new BinOperationItem("*", Type.FLOAT, Type.INT, Type.FLOAT));
+        binOperationTable.add(new BinOperationItem("*", Type.FLOAT, Type.FLOAT, Type.FLOAT));
+
         binOperationTable.add(new BinOperationItem("/", Type.INT, Type.INT, Type.INT));
+        binOperationTable.add(new BinOperationItem("/", Type.INT, Type.FLOAT, Type.FLOAT));
+        binOperationTable.add(new BinOperationItem("/", Type.FLOAT, Type.INT, Type.FLOAT));
+        binOperationTable.add(new BinOperationItem("/", Type.FLOAT, Type.FLOAT, Type.FLOAT));
 
         binOperationTable.add(new BinOperationItem("or", Type.BOOL, Type.BOOL, Type.BOOL));
+
         binOperationTable.add(new BinOperationItem("and", Type.BOOL, Type.BOOL, Type.BOOL));
+
     }
 
     private boolean isBinAllow(){
@@ -199,7 +242,7 @@ public class Lexer {
         }
     }
 
-    private void put(int tableId) throws InternalLexerException {
+    private void put(int tableId, Type numType) throws InternalLexerException {
         switch (tableId){
             case InternalProgramPresentation.serviceTableId:
             case InternalProgramPresentation.delimiterTableId:
@@ -231,7 +274,7 @@ public class Lexer {
                     }
                 }
                 if(findId == -1){
-                    numberTable.add(new NumberItem(lexBuffer));
+                    numberTable.add(new NumberItem(lexBuffer, numType));
                     curLexId = numberTable.size() - 1;
                 }
                 else {
@@ -359,7 +402,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId);
+                        put(InternalProgramPresentation.numberTableId, Type.INT);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
@@ -398,7 +441,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId);
+                        put(InternalProgramPresentation.numberTableId, Type.INT);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
@@ -431,7 +474,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId);
+                        put(InternalProgramPresentation.numberTableId, Type.INT);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
@@ -467,7 +510,7 @@ public class Lexer {
                         if (curLexId == -1){
                             check(InternalProgramPresentation.delimiterTableId);
                             if (curLexId == -1){
-                                put(InternalProgramPresentation.identifierTableId);
+                                put(InternalProgramPresentation.identifierTableId, null);
                                 write(InternalProgramPresentation.identifierTableId, curLexId);
                             }
                             else {
@@ -498,7 +541,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId);
+                        put(InternalProgramPresentation.numberTableId, Type.INT);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
@@ -515,7 +558,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId);
+                        put(InternalProgramPresentation.numberTableId, Type.INT);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
@@ -549,7 +592,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId);
+                        put(InternalProgramPresentation.numberTableId, Type.FLOAT);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
@@ -571,7 +614,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId);
+                        put(InternalProgramPresentation.numberTableId, Type.FLOAT);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
@@ -590,7 +633,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId);
+                        put(InternalProgramPresentation.numberTableId, Type.FLOAT);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
@@ -608,7 +651,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId);
+                        put(InternalProgramPresentation.numberTableId, Type.FLOAT);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
@@ -634,7 +677,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId);
+                        put(InternalProgramPresentation.numberTableId, Type.FLOAT);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
@@ -652,7 +695,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId);
+                        put(InternalProgramPresentation.numberTableId, Type.FLOAT);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();

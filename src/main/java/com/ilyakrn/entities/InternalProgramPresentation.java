@@ -28,6 +28,10 @@ public final class InternalProgramPresentation {
         this.binOperationTable = binOperationTable;
     }
 
+    public ArrayList<BinOperationItem> getBinOperationTable() {
+        return binOperationTable;
+    }
+
     public ArrayList<ServiceItem> getServiceTable() {
         return serviceTable;
     }
@@ -53,7 +57,7 @@ public final class InternalProgramPresentation {
         StringBuilder sb = new StringBuilder();
         sb.append("LexerOutput:\nTables:\n");
         sb.append("=================BIN_OPS=================\n");
-        for (int i = 0; i < numberTable.size(); i++) {
+        for (int i = 0; i < binOperationTable.size(); i++) {
             sb.append(String.format("%s\t%s\t%s\t%s\t%s\n", i, binOperationTable.get(i).getOperation(), binOperationTable.get(i).getOperand1(), binOperationTable.get(i).getOperand2(), binOperationTable.get(i).getResult()));
         }
         sb.append("=================SERVICE=================\n");
@@ -66,11 +70,11 @@ public final class InternalProgramPresentation {
         }
         sb.append("==================IDENT==================\n");
         for (int i = 0; i < identifierTable.size(); i++) {
-            sb.append(String.format("%s\t%s\t\t\t\t%s\t%s\n", i, identifierTable.get(i).getLexeme(), identifierTable.get(i).getType(), identifierTable.get(i).isInit()));
+            sb.append(String.format("%s\t%s\t\t\t\t%s\t%s\n", i, identifierTable.get(i).getLexeme(), identifierTable.get(i).getType() != null ? identifierTable.get(i).getType().name() : "null", identifierTable.get(i).isInit()));
         }
         sb.append("===================NUM===================\n");
         for (int i = 0; i < numberTable.size(); i++) {
-            sb.append(String.format("%s\t%s\n", i, numberTable.get(i).getLexeme()));
+            sb.append(String.format("%s\t%s\t%s\n", i, numberTable.get(i).getLexeme(), numberTable.get(i).getType().name()));
         }
         sb.append("==================LEXEMES==================\n");
         for (int i = 0; i < lexemesSeqTable.size(); i++) {

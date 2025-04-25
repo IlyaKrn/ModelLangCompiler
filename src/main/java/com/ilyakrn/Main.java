@@ -26,6 +26,8 @@ public class Main {
             parser.analyze(internalProgramPresentation);
             System.out.println("PARSER COMPLETE SUCCESSFUL");
 
+//            System.out.println(internalProgramPresentation);
+
             System.out.println("====================END=====================");
         } catch (CompilerExternalException e){
             System.out.println("COMPILATION FAILED:\n" + e.getMessage());
