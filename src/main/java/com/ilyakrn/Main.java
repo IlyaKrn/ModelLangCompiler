@@ -18,9 +18,10 @@ public class Main {
         Lexer lexer = new Lexer();
         Parser parser = new Parser();
 
+        InternalProgramPresentation internalProgramPresentation = null;
         try {
             System.out.println("==================COMPILER==================");
-            InternalProgramPresentation internalProgramPresentation = lexer.analyze(prog);
+            internalProgramPresentation = lexer.analyze(prog);
             System.out.println("LEXER COMPLETE SUCCESSFUL");
 
             parser.analyze(internalProgramPresentation);

@@ -6,9 +6,7 @@ import com.ilyakrn.exceptions.external.SemanticException;
 import com.ilyakrn.exceptions.external.SyntaxException;
 import com.ilyakrn.exceptions.internal.InternalParserException;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class Parser {
 
@@ -17,11 +15,17 @@ public class Parser {
     private ArrayList<IdentifierItem> identifierTable;
     private ArrayList<NumberItem> numberTable;
 
+    private ArrayList<BinOperationItem> binOperationTable;
+
+    private Stack<String> exprStack;
+
     public boolean analyze(InternalProgramPresentation internalProgramPresentation) throws InternalParserException, SyntaxException, SemanticException {
         serviceTable = internalProgramPresentation.getServiceTable();
         delimiterTable = internalProgramPresentation.getDelimiterTable();
         identifierTable = internalProgramPresentation.getIdentifierTable();
         numberTable = internalProgramPresentation.getNumberTable();
+        binOperationTable = internalProgramPresentation.getBinOperationTable();
+        exprStack = new Stack<>();
 
         Queue<ParserQueueItem> input = new LinkedList<>();
         for (int i = 0; i < internalProgramPresentation.getLexemesSeqTable().size(); i++) {
@@ -46,6 +50,8 @@ public class Parser {
         }
 
         int result = PROG(input);
+        if(result == -1)
+            throw new SyntaxException("Syntax error (no more info)");
         return result == input.size();
     }
 
@@ -199,6 +205,7 @@ public class Parser {
 
     private int EXPR(Queue<ParserQueueItem> input){
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
+        exprStack.clear();
         int result = OPRND(tempInput);
         if (result != -1){
             for (int i = 0; i < result; i++) {
@@ -206,9 +213,10 @@ public class Parser {
             }
             int result1 = OGO(tempInput);
             while (result1 != -1) {
-                for (int i = 0; i < result1; i++) {
+                for (int i = 0; i < result1 - 1; i++) {
                     tempInput.poll();
                 }
+                exprStack.add(tempInput.poll().getLexeme());
                 result += result1;
                 int result2 = OPRND(tempInput);
                 if (result2 != -1) {
@@ -224,6 +232,11 @@ public class Parser {
                 }
             }
         }
+
+        System.out.print(exprStack + "        ");
+        Type t = getExprType(exprStack);
+
+        System.out.println(t.name());
         return result;
     }
     private int SLAG(Queue<ParserQueueItem> input){
@@ -235,9 +248,10 @@ public class Parser {
             }
             int result1 = OGU(tempInput);
             while (result1 != -1) {
-                for (int i = 0; i < result1; i++) {
+                for (int i = 0; i < result1 - 1; i++) {
                     tempInput.poll();
                 }
+                exprStack.add(tempInput.poll().getLexeme());
                 result += result1;
                 int result2 = MNOZH(tempInput);
                 if (result2 != -1) {
@@ -264,9 +278,10 @@ public class Parser {
             }
             int result1 = OGS(tempInput);
             while (result1 != -1) {
-                for (int i = 0; i < result1; i++) {
+                for (int i = 0; i < result1 - 1; i++) {
                     tempInput.poll();
                 }
+                exprStack.add(tempInput.poll().getLexeme());
                 result += result1;
                 int result2 = SLAG(tempInput);
                 if (result2 != -1) {
@@ -288,12 +303,6 @@ public class Parser {
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         int result = -1;
 
-        if (result == -1)
-            result = isIdentifier(tempInput);
-        if (result == -1)
-            result = isNumber(tempInput);
-        if (result == -1)
-            result = LC(tempInput);
         if (result == -1) {
             result = UO(tempInput);
             if (result != -1) {
@@ -301,11 +310,38 @@ public class Parser {
                     tempInput.poll();
                 }
                 int result1 = MNOZH(tempInput);
-                result = result1 == -1 ? -1 : result + result1;
+                if(result1 != -1){
+                    for (int i = 0; i < result1 - 1; i++) {
+                        tempInput.poll();
+                    }
+                    Type type = getType(tempInput.poll());
+                    if(type != Type.BOOL)
+                        throw new SemanticException("'not' can apply to bool only");
+                    exprStack.add(type.name());
+                    result += result1;
+                    return result;
+                }
+                else {
+                    throw new SemanticException("'not' statement not completed");
+                }
             }
         }
+        if (result == -1)
+            result = isIdentifier(tempInput);
+        if (result == -1)
+            result = isNumber(tempInput);
+        if (result == -1)
+            result = LC(tempInput);
 //        if (result == -1)
 //            result = MNOZH(tempInput);
+
+        if(result != -1){
+            for (int i = 0; i < result - 1; i++) {
+                tempInput.poll();
+            }
+            Type type = getType(tempInput.poll());
+            exprStack.add(type.name());
+        }
 
         return result;
     }
@@ -762,6 +798,63 @@ public class Parser {
         result += result5;
         return result;
     }
+
+    Type getType(ParserQueueItem parserQueueItem) {
+        Type result = null;
+        switch (parserQueueItem.getTableId()){
+            case InternalProgramPresentation.serviceTableId:
+                switch (parserQueueItem.getLexeme()){
+                    case "true":
+                    case "false":
+                        result = Type.BOOL;
+                        break;
+                    default:
+                        throw new InternalParserException("can not get type of service word or delimiter");
+                }
+                break;
+            case InternalProgramPresentation.delimiterTableId:
+                throw new InternalParserException("can not get type of service word or delimiter");
+            case InternalProgramPresentation.numberTableId:
+                if (parserQueueItem.getLexId() >= numberTable.size())
+                    throw new InternalParserException("can not find number with id " + parserQueueItem.getLexId());
+                result = numberTable.get(parserQueueItem.getLexId()).getType();
+                break;
+            case InternalProgramPresentation.identifierTableId:
+                if (parserQueueItem.getLexId() >= identifierTable.size())
+                    throw new InternalParserException("can not find number with id " + parserQueueItem.getLexId());
+                result = identifierTable.get(parserQueueItem.getLexId()).getType();
+                if (result == null)
+                    throw new InternalParserException("variable '" + parserQueueItem.getLexeme() + "' not defined");
+                break;
+            default:
+                throw new InternalParserException("can not find table with id " + parserQueueItem.getTableId());
+        }
+        if (result == null)
+            throw new InternalParserException("can not get type of " + parserQueueItem.getTableId() + " " + parserQueueItem.getLexId());
+        return result;
+    }
+
+    Type getExprType(Stack<String> stack) {
+        while (stack.size() >= 3) {
+            String operand2 = stack.pop();
+            String operator = stack.pop();
+            String operand1 = stack.pop();
+            Type result = null;
+            for (int i = 0; i < binOperationTable.size(); i++) {
+                if (binOperationTable.get(i).getOperation().equals(operator)
+                && binOperationTable.get(i).getOperand1().name().equals(operand1)
+                && binOperationTable.get(i).getOperand2().name().equals(operand2)) {
+                    result = binOperationTable.get(i).getResult();
+                    break;
+                }
+            }
+            if (result == null)
+                throw new InternalParserException("can not get type of " + operand1 + " " + operator + " " + operand2);
+            stack.push(result.name());
+        }
+        return Type.valueOf(stack.pop());
+    }
+
 /// ///////////////////////*/
 
 
