@@ -1,118 +1,25 @@
 {
-int
-x
-,
-y
-,
-result
-;
-float
-temp
-;
-bool
-flag
-;
-x
-ass
-10
-;
-y
-ass
-20
-;
-flag
-ass
-true
-;
-if
-x
-<
-y
-*
-x
--
-x
--
-4.44
-then
-result
-ass
-x
-+
-y
-else
-result
-ass
-x
--
-y
-;
-for
-x
-ass
-1.5
-to
-10.0
-do
-write
-(
-x
-)
-:
-x
-ass
-555.234
-+
-0.5
-;
-while
-flag
-do
-read
-(
-x
-)
-:
-if
-x
->
-100
-then
-flag
-ass
-false
-:
-write
-(
-x
-,
-x
-)
-;
-write
-(
-x
-,
-result
-,
-result
-*
-2
-)
-;
-bool
-innerFlag
-;
-innerFlag
-ass
-not
-flag
-;
-write
-(
-x
-,
-innerFlag
-)
-;
+    int x,y,result;
+    float temp;
+    bool flag;
+
+    x ass 10;
+    y ass 20;
+    flag ass true;
+
+    if x < y * x - x - 4.44
+    then result ass x + y
+    else result ass x - y ;
+
+    for x ass 1 to 10
+    do write(x): x ass 555 + 5;
+
+    while flag
+    do read(x): if x > 100 then flag ass false: write (x,x);
+
+    write(x,result,result * 2);
+
+    bool innerFlag;
+    innerFlag ass not not not flag;
+    write(x,innerFlag);
 }

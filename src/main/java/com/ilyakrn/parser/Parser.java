@@ -317,7 +317,8 @@ public class Parser {
                     Type type = getType(tempInput.poll());
                     if(type != Type.BOOL)
                         throw new SemanticException("'not' can apply to bool only");
-                    exprStack.add(type.name());
+                    if (exprStack.isEmpty() || (!exprStack.isEmpty() && !exprStack.peek().equals(Type.BOOL.name())))
+                        exprStack.add(type.name());
                     result += result1;
                     return result;
                 }
@@ -367,9 +368,10 @@ public class Parser {
         int result2 = isIdentifier(tempInput);
         if (result2 == -1)
             return -1;
-        for (int i = 0; i < result2; i++) {
+        for (int i = 0; i < result2 - 1; i++) {
             tempInput.poll();
         }
+        getType(tempInput.poll());
         result += result2;
 
         int result3 = nextLexemeIs(tempInput,",");
@@ -385,6 +387,7 @@ public class Parser {
             for (int i = 0; i < result4; i++) {
                 tempInput.poll();
             }
+            getType(tempInput.poll());
             result += result4;
 
             result3 = nextLexemeIs(tempInput,",");
@@ -459,9 +462,10 @@ public class Parser {
         int result = isIdentifier(tempInput);
         if (result == -1)
             return -1;
-        for (int i = 0; i < result; i++) {
+        for (int i = 0; i < result - 1; i++) {
             tempInput.poll();
         }
+        Type typeVar = getType(tempInput.poll());
 
         int result1 = nextLexemeIs(tempInput, "ass");
         if (result1 == -1)
@@ -477,6 +481,8 @@ public class Parser {
         for (int i = 0; i < result2; i++) {
             tempInput.poll();
         }
+        if (!exprStack.peek().equals(typeVar.name()))
+            throw new SemanticException(typeVar.name() + " can not be assigned as " + exprStack.peek());
         result += result2;
         return result;
     }
@@ -495,6 +501,8 @@ public class Parser {
         for (int i = 0; i < result1; i++) {
             tempInput.poll();
         }
+        if (!exprStack.peek().equals(Type.BOOL.name()))
+            throw new SemanticException("can not use " + exprStack.peek() + " as " + Type.BOOL.name());
         result += result1;
 
         int result2 = nextLexemeIs(tempInput, "then");
@@ -595,6 +603,8 @@ public class Parser {
         for (int i = 0; i < result1; i++) {
             tempInput.poll();
         }
+        if (!exprStack.peek().equals(Type.BOOL.name()))
+            throw new SemanticException("can not use " + exprStack.peek() + " as " + Type.BOOL.name());
         result += result1;
 
         int result2 = nextLexemeIs(tempInput, "do");
@@ -852,7 +862,7 @@ public class Parser {
                 throw new InternalParserException("can not get type of " + operand1 + " " + operator + " " + operand2);
             stack.push(result.name());
         }
-        return Type.valueOf(stack.pop());
+        return Type.valueOf(stack.peek());
     }
 
 /// ///////////////////////*/
