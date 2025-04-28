@@ -15,6 +15,8 @@ public class Parser {
     private ArrayList<IdentifierItem> identifierTable;
     private ArrayList<NumberItem> numberTable;
 
+    private ArrayList<PolizItem> polizTable;
+
     private ArrayList<BinOperationItem> binOperationTable;
 
     private Stack<String> exprStack;
@@ -25,7 +27,13 @@ public class Parser {
         identifierTable = internalProgramPresentation.getIdentifierTable();
         numberTable = internalProgramPresentation.getNumberTable();
         binOperationTable = internalProgramPresentation.getBinOperationTable();
+        polizTable = new ArrayList<>();
         exprStack = new Stack<>();
+
+        delimiterTable.add(new DelimiterItem("!"));
+        delimiterTable.add(new DelimiterItem("!F"));
+        delimiterTable.add(new DelimiterItem("R"));
+        delimiterTable.add(new DelimiterItem("W"));
 
         Queue<ParserQueueItem> input = new LinkedList<>();
         for (int i = 0; i < internalProgramPresentation.getLexemesSeqTable().size(); i++) {
@@ -205,63 +213,81 @@ public class Parser {
 
     private int EXPR(Queue<ParserQueueItem> input){
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
+        int currentPolizPos = polizTable.size();
+
         exprStack.clear();
         int result = OPRND(tempInput);
         if (result != -1){
             for (int i = 0; i < result; i++) {
                 tempInput.poll();
             }
+            int operIndex = polizTable.size();
             int result1 = OGO(tempInput);
             while (result1 != -1) {
                 for (int i = 0; i < result1 - 1; i++) {
                     tempInput.poll();
                 }
-                exprStack.add(tempInput.poll().getLexeme());
+                exprStack.add(tempInput.peek().getLexeme());
+                polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
                 result += result1;
                 int result2 = OPRND(tempInput);
                 if (result2 != -1) {
                     for (int i = 0; i < result2; i++) {
                         tempInput.poll();
                     }
+                    polizTable.add(polizTable.get(operIndex));
+                    polizTable.remove(operIndex);
+                    operIndex = polizTable.size();
                     result1 = OGO(tempInput);
                     result += result2;
                 }
                 else {
+                    for (int i = 0; i < polizTable.size() - currentPolizPos; i++) {
+                        polizTable.remove(currentPolizPos);
+                    }
                     result = -1;
                     break;
                 }
             }
         }
 
-        System.out.print(exprStack + "        ");
         Type t = getExprType(exprStack);
 
-        System.out.println(t.name());
         return result;
     }
     private int SLAG(Queue<ParserQueueItem> input){
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
+        int currentPolizPos = polizTable.size();
+
         int result = MNOZH(tempInput);
         if (result != -1){
             for (int i = 0; i < result; i++) {
                 tempInput.poll();
             }
+            int operIndex = polizTable.size();
             int result1 = OGU(tempInput);
             while (result1 != -1) {
                 for (int i = 0; i < result1 - 1; i++) {
                     tempInput.poll();
                 }
-                exprStack.add(tempInput.poll().getLexeme());
+                exprStack.add(tempInput.peek().getLexeme());
+                polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
                 result += result1;
                 int result2 = MNOZH(tempInput);
                 if (result2 != -1) {
                     for (int i = 0; i < result2; i++) {
                         tempInput.poll();
                     }
+                    polizTable.add(polizTable.get(operIndex));
+                    polizTable.remove(operIndex);
+                    operIndex = polizTable.size();
                     result1 = OGU(tempInput);
                     result += result2;
                 }
                 else {
+                    for (int i = 0; i < polizTable.size() - currentPolizPos; i++) {
+                        polizTable.remove(currentPolizPos);
+                    }
                     result = -1;
                     break;
                 }
@@ -271,27 +297,37 @@ public class Parser {
     }
     private int OPRND(Queue<ParserQueueItem> input){
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
+        int currentPolizPos = polizTable.size();
+
         int result = SLAG(tempInput);
         if (result != -1){
             for (int i = 0; i < result; i++) {
                 tempInput.poll();
             }
+            int operIndex = polizTable.size();
             int result1 = OGS(tempInput);
             while (result1 != -1) {
                 for (int i = 0; i < result1 - 1; i++) {
                     tempInput.poll();
                 }
-                exprStack.add(tempInput.poll().getLexeme());
+                exprStack.add(tempInput.peek().getLexeme());
+                polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
                 result += result1;
                 int result2 = SLAG(tempInput);
                 if (result2 != -1) {
                     for (int i = 0; i < result2; i++) {
                         tempInput.poll();
                     }
+                    polizTable.add(polizTable.get(operIndex));
+                    polizTable.remove(operIndex);
+                    operIndex = polizTable.size();
                     result1 = OGS(tempInput);
                     result += result2;
                 }
                 else {
+                    for (int i = 0; i < polizTable.size() - currentPolizPos; i++) {
+                        polizTable.remove(currentPolizPos);
+                    }
                     result = -1;
                     break;
                 }
@@ -301,24 +337,28 @@ public class Parser {
     }
     private int MNOZH(Queue<ParserQueueItem> input){
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
+        int currentPolizPos = polizTable.size();
         int result = -1;
 
         if (result == -1) {
             result = UO(tempInput);
             if (result != -1) {
-                for (int i = 0; i < result; i++) {
+                for (int i = 0; i < result - 1; i++) {
                     tempInput.poll();
                 }
+                polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
                 int result1 = MNOZH(tempInput);
                 if(result1 != -1){
                     for (int i = 0; i < result1 - 1; i++) {
                         tempInput.poll();
                     }
-                    Type type = getType(tempInput.poll());
+                    Type type = getType(tempInput.peek());
                     if(type != Type.BOOL)
                         throw new SemanticException("'not' can apply to bool only");
                     if (exprStack.isEmpty() || (!exprStack.isEmpty() && !exprStack.peek().equals(Type.BOOL.name())))
                         exprStack.add(type.name());
+                    polizTable.add(polizTable.get(currentPolizPos));
+                    polizTable.remove(currentPolizPos);
                     result += result1;
                     return result;
                 }
@@ -340,8 +380,9 @@ public class Parser {
             for (int i = 0; i < result - 1; i++) {
                 tempInput.poll();
             }
-            Type type = getType(tempInput.poll());
+            Type type = getType(tempInput.peek());
             exprStack.add(type.name());
+            polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
         }
 
         return result;

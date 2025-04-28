@@ -10,22 +10,29 @@ public final class InternalProgramPresentation {
     public static final int delimiterTableId = 1;
     public static final int identifierTableId = 2;
     public static final int numberTableId = 3;
+    public static final int polizTableId = 4;
 
     private final ArrayList<ServiceItem> serviceTable;
     private final ArrayList<DelimiterItem> delimiterTable;
     private final ArrayList<IdentifierItem> identifierTable;
     private final ArrayList<NumberItem> numberTable;
     private final ArrayList<BinOperationItem> binOperationTable;
+    private final ArrayList<PolizItem> polizTable;
 
     private final ArrayList<LexemesSeqItem> lexemesSeqTable;
 
-    public InternalProgramPresentation(ArrayList<ServiceItem> serviceTable, ArrayList<DelimiterItem> delimiterTable, ArrayList<IdentifierItem> identifierTable, ArrayList<NumberItem> numberTable, ArrayList<LexemesSeqItem> lexemesSeqTable, ArrayList<BinOperationItem> binOperationTable) {
+    public InternalProgramPresentation(ArrayList<ServiceItem> serviceTable, ArrayList<DelimiterItem> delimiterTable, ArrayList<IdentifierItem> identifierTable, ArrayList<NumberItem> numberTable, ArrayList<LexemesSeqItem> lexemesSeqTable, ArrayList<BinOperationItem> binOperationTable, ArrayList<PolizItem> polizTable) {
         this.serviceTable = serviceTable;
         this.delimiterTable = delimiterTable;
         this.identifierTable = identifierTable;
         this.numberTable = numberTable;
         this.lexemesSeqTable = lexemesSeqTable;
         this.binOperationTable = binOperationTable;
+        this.polizTable = polizTable;
+    }
+
+    public ArrayList<PolizItem> getPolizTable() {
+        return polizTable;
     }
 
     public ArrayList<BinOperationItem> getBinOperationTable() {
