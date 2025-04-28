@@ -540,7 +540,10 @@ public class Parser {
         return result;
     }
     private int USLOV(Queue<ParserQueueItem> input){
+
+        int iiiii = polizTable.size();
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
+        int currentPolizPos = polizTable.size();
         int result = nextLexemeIs(tempInput, "if");
         if (result == -1)
             return -1;
@@ -554,25 +557,42 @@ public class Parser {
         for (int i = 0; i < result1; i++) {
             tempInput.poll();
         }
-        if (!exprStack.peek().equals(Type.BOOL.name()))
+        if (!exprStack.peek().equals(Type.BOOL.name())) {
+            for (int i = 0; i < polizTable.size() - currentPolizPos; i++) {
+                polizTable.remove(currentPolizPos);
+            }
             throw new SemanticException("can not use " + exprStack.peek() + " as " + Type.BOOL.name());
+        }
         result += result1;
 
         int result2 = nextLexemeIs(tempInput, "then");
-        if (result2 == -1)
+        if (result2 == -1) {
+            for (int i = 0; i < polizTable.size() - currentPolizPos; i++) {
+                polizTable.remove(currentPolizPos);
+            }
             return -1;
+        }
         for (int i = 0; i < result2; i++) {
             tempInput.poll();
         }
         result += result2;
 
+        int gotoIfFalseIndex = polizTable.size();
+        polizTable.add(null);
+        polizTable.add(new PolizItem("!F"));
         int result3 = OPERATOR(tempInput);
-        if (result3 == -1)
+        if (result3 == -1) {
+            for (int i = 0; i < polizTable.size() - currentPolizPos; i++) {
+                polizTable.remove(currentPolizPos);
+            }
             return -1;
+        }
         for (int i = 0; i < result3; i++) {
             tempInput.poll();
         }
         result += result3;
+
+        int gotoIfFalse = polizTable.size();
 
         int result4 = nextLexemeIs(tempInput, "else");
         if (result4 != -1) {
@@ -581,14 +601,32 @@ public class Parser {
             }
             result += result4;
 
+            int gotoNextIndex = polizTable.size();
+            polizTable.add(null);
+            polizTable.add(new PolizItem("!"));
+            gotoIfFalse = polizTable.size();
+
             int result5 = OPERATOR(tempInput);
-            if (result5 == -1)
+            if (result5 == -1) {
+                for (int i = 0; i < polizTable.size() - currentPolizPos; i++) {
+                    polizTable.remove(currentPolizPos);
+                }
                 return -1;
+            }
             for (int i = 0; i < result5; i++) {
                 tempInput.poll();
             }
+            polizTable.set(gotoNextIndex, new PolizItem(String.valueOf(polizTable.size())));
+
             result += result5;
         }
+        polizTable.set(gotoIfFalseIndex, new PolizItem(String.valueOf(gotoIfFalse)));
+
+        for (int i = iiiii; i < polizTable.size(); i++) {
+            System.out.print("(" + i + ") " + polizTable.get(i).getLexeme() + " ");
+        }
+        System.out.println();
+
         return result;
     }
     private int FIXLOOP(Queue<ParserQueueItem> input){
@@ -934,18 +972,18 @@ public class Parser {
 /**   SLAG                              слагаемое                                           **/
 /**   OPRND                             операнд                                             **/
 
-/**   ENTER                             ввода                                               **/
-/**   OUT                               вывода                                              **/
+/**   ENTER*                            ввода                                               **/
+/**   OUT*                              вывода                                              **/
 /**   PRISV                             присваивания                                        **/
 /**   USLOV                             условный                                            **/
-/**   FIXLOOP                           фиксированного_цикла                                **/
-/**   USLLOOP                           условного_цикла                                     **/
-/**   SOSTAV                            составной                                           **/
+/**   FIXLOOP*                          фиксированного_цикла                                **/
+/**   USLLOOP*                          условного_цикла                                     **/
+/**   SOSTAV*                           составной                                           **/
 
-/**   OPERATOR                          оператор                                            **/
-/**   DESC                              описание                                            **/
+/**   OPERATOR*                         оператор                                            **/
+/**   DESC*                             описание                                            **/
 
-/**   PROG                              программа                                           **/
+/**   PROG*                             программа                                           **/
 
 
 //          <операнд>::= <слагаемое> {<операции_группы_сложения> <слагаемое>}
