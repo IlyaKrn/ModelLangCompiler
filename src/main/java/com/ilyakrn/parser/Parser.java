@@ -21,7 +21,7 @@ public class Parser {
 
     private Stack<String> exprStack;
 
-    public boolean analyze(InternalProgramPresentation internalProgramPresentation) throws InternalParserException, SyntaxException, SemanticException {
+    public InternalProgramPresentation analyze(InternalProgramPresentation internalProgramPresentation) throws InternalParserException, SyntaxException, SemanticException {
         serviceTable = internalProgramPresentation.getServiceTable();
         delimiterTable = internalProgramPresentation.getDelimiterTable();
         identifierTable = internalProgramPresentation.getIdentifierTable();
@@ -58,9 +58,9 @@ public class Parser {
         }
 
         int result = PROG(input);
-        if(result == -1)
+        if(result != input.size())
             throw new SyntaxException("Syntax error (no more info)");
-        return result == input.size();
+        return new InternalProgramPresentation(serviceTable, delimiterTable, identifierTable, numberTable, internalProgramPresentation.getLexemesSeqTable(), binOperationTable, polizTable);
     }
 
     private int nextLexemeIs(Queue<ParserQueueItem> input, String lexeme){
@@ -390,6 +390,7 @@ public class Parser {
 
     private int ENTER(Queue<ParserQueueItem> input){
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
+        int currentPolizPos = polizTable.size();
 
         int result = nextLexemeIs(tempInput,"read");
         if (result == -1)
@@ -412,8 +413,11 @@ public class Parser {
         for (int i = 0; i < result2 - 1; i++) {
             tempInput.poll();
         }
-        getType(tempInput.poll());
+        getType(tempInput.peek());
         result += result2;
+
+        polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
+        polizTable.add(new PolizItem("R"));
 
         int result3 = nextLexemeIs(tempInput,",");
         while (result3 != -1) {
@@ -423,21 +427,32 @@ public class Parser {
             result += result3;
 
             int result4 = isIdentifier(tempInput);
-            if (result4 == -1)
+            if (result4 == -1) {
+                for (int i = 0; i < polizTable.size() - currentPolizPos; i++) {
+                    polizTable.remove(currentPolizPos);
+                }
                 return -1;
-            for (int i = 0; i < result4; i++) {
+            }
+            for (int i = 0; i < result4 - 1; i++) {
                 tempInput.poll();
             }
-            getType(tempInput.poll());
+            getType(tempInput.peek());
             result += result4;
+
+            polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
+            polizTable.add(new PolizItem("R"));
 
             result3 = nextLexemeIs(tempInput,",");
 
         }
 
         int result5 = nextLexemeIs(tempInput,")");
-        if (result5 == -1)
+        if (result5 == -1) {
+            for (int i = 0; i < polizTable.size() - currentPolizPos; i++) {
+                polizTable.remove(currentPolizPos);
+            }
             return -1;
+        }
         for (int i = 0; i < result5; i++) {
             tempInput.poll();
         }
@@ -446,6 +461,7 @@ public class Parser {
     }
     private int OUT(Queue<ParserQueueItem> input){
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
+        int currentPolizPos = polizTable.size();
 
         int result = nextLexemeIs(tempInput,"write");
         if (result == -1)
@@ -470,6 +486,8 @@ public class Parser {
         }
         result += result2;
 
+        polizTable.add(new PolizItem("W"));
+
         int result3 = nextLexemeIs(tempInput,",");
         while (result3 != -1) {
             for (int i = 0; i < result3; i++) {
@@ -478,20 +496,30 @@ public class Parser {
             result += result3;
 
             int result4 = EXPR(tempInput);
-            if (result4 == -1)
+            if (result4 == -1) {
+                for (int i = 0; i < polizTable.size() - currentPolizPos; i++) {
+                    polizTable.remove(currentPolizPos);
+                }
                 return -1;
+            }
             for (int i = 0; i < result4; i++) {
                 tempInput.poll();
             }
             result += result4;
+
+            polizTable.add(new PolizItem("W"));
 
             result3 = nextLexemeIs(tempInput,",");
 
         }
 
         int result5 = nextLexemeIs(tempInput,")");
-        if (result5 == -1)
+        if (result5 == -1) {
+            for (int i = 0; i < polizTable.size() - currentPolizPos; i++) {
+                polizTable.remove(currentPolizPos);
+            }
             return -1;
+        }
         for (int i = 0; i < result5; i++) {
             tempInput.poll();
         }
@@ -941,9 +969,10 @@ public class Parser {
         int result5 = nextLexemeIs(tempInput, "}");
         if (result5 == -1)
             return -1;
-        for (int i = 0; i < result5; i++) {
+        for (int i = 0; i < result5 - 1; i++) {
             tempInput.poll();
         }
+        polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
         result += result5;
         return result;
     }
@@ -1020,18 +1049,18 @@ public class Parser {
 /**   SLAG                              слагаемое                                           **/
 /**   OPRND                             операнд                                             **/
 
-/**   ENTER*                            ввода                                               **/
-/**   OUT*                              вывода                                              **/
+/**   ENTER                             ввода                                               **/
+/**   OUT                               вывода                                              **/
 /**   PRISV                             присваивания                                        **/
 /**   USLOV                             условный                                            **/
 /**   FIXLOOP                           фиксированного_цикла                                **/
 /**   USLLOOP                           условного_цикла                                     **/
-/**   SOSTAV*                           составной                                           **/
+/**   SOSTAV                            составной                                           **/
 
-/**   OPERATOR*                         оператор                                            **/
-/**   DESC*                             описание                                            **/
+/**   OPERATOR                          оператор                                            **/
+/**   DESC                              описание                                            **/
 
-/**   PROG*                             программа                                           **/
+/**   PROG                              программа                                           **/
 
 
 //          <операнд>::= <слагаемое> {<операции_группы_сложения> <слагаемое>}

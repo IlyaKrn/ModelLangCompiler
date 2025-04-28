@@ -10,6 +10,8 @@ import com.ilyakrn.parser.Parser;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -24,8 +26,12 @@ public class Main {
             internalProgramPresentation = lexer.analyze(prog);
             System.out.println("LEXER COMPLETE SUCCESSFUL");
 
-            parser.analyze(internalProgramPresentation);
+            internalProgramPresentation = parser.analyze(internalProgramPresentation);
             System.out.println("PARSER COMPLETE SUCCESSFUL");
+
+            for (int i = 0; i < internalProgramPresentation.getPolizTable().size(); i++) {
+                System.out.println(i + "\t" + internalProgramPresentation.getPolizTable().get(i).getLexeme());
+            }
 
 //            System.out.println(internalProgramPresentation);
 
