@@ -500,28 +500,40 @@ public class Parser {
     }
     private int PRISV(Queue<ParserQueueItem> input){
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
+        int currentPolizPos = polizTable.size();
         int result = isIdentifier(tempInput);
         if (result == -1)
             return -1;
         for (int i = 0; i < result - 1; i++) {
             tempInput.poll();
         }
-        Type typeVar = getType(tempInput.poll());
+        Type typeVar = getType(tempInput.peek());
+        polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
 
         int result1 = nextLexemeIs(tempInput, "ass");
-        if (result1 == -1)
+        if (result1 == -1) {
+            polizTable.remove(currentPolizPos);
             return -1;
-        for (int i = 0; i < result1; i++) {
+        }
+        for (int i = 0; i < result1 - 1; i++) {
             tempInput.poll();
         }
+        int operIndex = polizTable.size();
+        polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
         result += result1;
 
         int result2 = EXPR(tempInput);
-        if (result2 == -1)
+        if (result2 == -1) {
+            for (int i = 0; i < polizTable.size() - currentPolizPos; i++) {
+                polizTable.remove(currentPolizPos);
+            }
             return -1;
+        }
         for (int i = 0; i < result2; i++) {
             tempInput.poll();
         }
+        polizTable.add(polizTable.get(operIndex));
+        polizTable.remove(operIndex);
         if (!exprStack.peek().equals(typeVar.name()))
             throw new SemanticException(typeVar.name() + " can not be assigned as " + exprStack.peek());
         result += result2;
