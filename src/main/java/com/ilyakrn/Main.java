@@ -3,6 +3,7 @@ package com.ilyakrn;
 import com.ilyakrn.exceptions.external.CompilerExternalException;
 import com.ilyakrn.exceptions.internal.CompilerInternalException;
 import com.ilyakrn.exceptions.internal.InternalLexerException;
+import com.ilyakrn.interpreter.Interpreter;
 import com.ilyakrn.lexer.Lexer;
 import com.ilyakrn.entities.InternalProgramPresentation;
 import com.ilyakrn.parser.Parser;
@@ -19,6 +20,7 @@ public class Main {
 
         Lexer lexer = new Lexer();
         Parser parser = new Parser();
+        Interpreter interpreter = new Interpreter();
 
         InternalProgramPresentation internalProgramPresentation = null;
         try {
@@ -28,12 +30,10 @@ public class Main {
 
             internalProgramPresentation = parser.analyze(internalProgramPresentation);
             System.out.println("PARSER COMPLETE SUCCESSFUL");
+            System.out.println("INTERPRETING PROGRAM...");
 
-            for (int i = 0; i < internalProgramPresentation.getPolizTable().size(); i++) {
-                System.out.println(i + "\t" + internalProgramPresentation.getPolizTable().get(i).getLexeme());
-            }
-
-//            System.out.println(internalProgramPresentation);
+            interpreter.interpret(internalProgramPresentation);
+            System.out.println("INTERPRETATION COMPLETE SUCCESSFUL");
 
             System.out.println("====================END=====================");
         } catch (CompilerExternalException e){
