@@ -11,6 +11,7 @@ public final class InternalProgramPresentation {
     public static final int identifierTableId = 2;
     public static final int numberTableId = 3;
     public static final int polizTableId = 4;
+    public static final int polizPointerTableId = 5;
 
     private final ArrayList<ServiceItem> serviceTable;
     private final ArrayList<DelimiterItem> delimiterTable;
@@ -18,10 +19,11 @@ public final class InternalProgramPresentation {
     private final ArrayList<NumberItem> numberTable;
     private final ArrayList<BinOperationItem> binOperationTable;
     private final ArrayList<PolizItem> polizTable;
+    private final ArrayList<PolizPointerItem> polizPointerTable;
 
     private final ArrayList<LexemesSeqItem> lexemesSeqTable;
 
-    public InternalProgramPresentation(ArrayList<ServiceItem> serviceTable, ArrayList<DelimiterItem> delimiterTable, ArrayList<IdentifierItem> identifierTable, ArrayList<NumberItem> numberTable, ArrayList<LexemesSeqItem> lexemesSeqTable, ArrayList<BinOperationItem> binOperationTable, ArrayList<PolizItem> polizTable) {
+    public InternalProgramPresentation(ArrayList<ServiceItem> serviceTable, ArrayList<DelimiterItem> delimiterTable, ArrayList<IdentifierItem> identifierTable, ArrayList<NumberItem> numberTable, ArrayList<LexemesSeqItem> lexemesSeqTable, ArrayList<BinOperationItem> binOperationTable, ArrayList<PolizItem> polizTable, ArrayList<PolizPointerItem> polizPointerTable) {
         this.serviceTable = serviceTable;
         this.delimiterTable = delimiterTable;
         this.identifierTable = identifierTable;
@@ -29,6 +31,7 @@ public final class InternalProgramPresentation {
         this.lexemesSeqTable = lexemesSeqTable;
         this.binOperationTable = binOperationTable;
         this.polizTable = polizTable;
+        this.polizPointerTable = polizPointerTable;
     }
 
     public ArrayList<PolizItem> getPolizTable() {
@@ -59,6 +62,10 @@ public final class InternalProgramPresentation {
         return lexemesSeqTable;
     }
 
+    public ArrayList<PolizPointerItem> getPolizPointerTable() {
+        return polizPointerTable;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -83,6 +90,10 @@ public final class InternalProgramPresentation {
         for (int i = 0; i < numberTable.size(); i++) {
             sb.append(String.format("%s\t%s\t%s\n", i, numberTable.get(i).getLexeme(), numberTable.get(i).getType().name()));
         }
+        sb.append("=================POINTER=================\n");
+        for (int i = 0; i < polizPointerTable.size(); i++) {
+            sb.append(String.format("%s\t%s\n", i, polizPointerTable.get(i).getPolizIndex()));
+        }
         sb.append("==================LEXEMES==================\n");
         for (int i = 0; i < lexemesSeqTable.size(); i++) {
             String lexemeName = "";
@@ -106,6 +117,34 @@ public final class InternalProgramPresentation {
                     break;
             }
             sb.append(String.format("%s\t%s\t%s\t%s\t\t\t\t%s\n", i, lexemesSeqTable.get(i).getLexId(), lexemesSeqTable.get(i).getTableId(), tableName, lexemeName ));
+        }
+        sb.append("===================POLIZ===================\n");
+        for (int i = 0; i < polizTable.size(); i++) {
+            String lexemeName = "";
+            String tableName = "";
+            switch (polizTable.get(i).getTableId()){
+                case serviceTableId:
+                    lexemeName = serviceTable.get(polizTable.get(i).getLexId()).getLexeme();
+                    tableName = "serv";
+                    break;
+                case delimiterTableId:
+                    lexemeName = delimiterTable.get(polizTable.get(i).getLexId()).getLexeme();
+                    tableName = "delim";
+                    break;
+                case identifierTableId:
+                    lexemeName = identifierTable.get(polizTable.get(i).getLexId()).getLexeme();
+                    tableName = "ident";
+                    break;
+                case numberTableId:
+                    lexemeName = numberTable.get(polizTable.get(i).getLexId()).getLexeme();
+                    tableName = "num";
+                    break;
+                case polizPointerTableId:
+                    lexemeName = String.valueOf(polizPointerTable.get(polizTable.get(i).getLexId()).getPolizIndex());
+                    tableName = "point";
+                    break;
+            }
+            sb.append(String.format("%s\t%s\t\t%s\n", i, tableName, lexemeName));
         }
 
         return sb.toString();

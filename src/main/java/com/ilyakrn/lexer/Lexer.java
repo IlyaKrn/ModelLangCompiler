@@ -968,7 +968,7 @@ public class Lexer {
             throw new LexicalException(curLine + ":" + (curCol - 1) + "\t" + message);
         }
 
-        return new InternalProgramPresentation(serviceTable, delimiterTable, identifierTable, numberTable, lexemesSeqTable, binOperationTable, new ArrayList());
+        return new InternalProgramPresentation(serviceTable, delimiterTable, identifierTable, numberTable, lexemesSeqTable, binOperationTable, new ArrayList(), new ArrayList());
     }
 
 

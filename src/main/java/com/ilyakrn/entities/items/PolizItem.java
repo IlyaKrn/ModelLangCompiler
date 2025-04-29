@@ -2,14 +2,19 @@ package com.ilyakrn.entities.items;
 
 public class PolizItem {
 
-    private final String lexeme;
+    private final int lexId;
+    private final int tableId;
 
-    public PolizItem(String lexeme) {
-        this.lexeme = lexeme;
+    public PolizItem(int lexId, int tableId) {
+        this.lexId = lexId;
+        this.tableId = tableId;
     }
 
-    public String getLexeme() {
-        return lexeme;
+    public int getLexId() {
+        return lexId;
     }
 
+    public int getTableId() {
+        return tableId;
+    }
 }

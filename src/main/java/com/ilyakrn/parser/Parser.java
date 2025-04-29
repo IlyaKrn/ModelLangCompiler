@@ -16,10 +16,13 @@ public class Parser {
     private ArrayList<NumberItem> numberTable;
 
     private ArrayList<PolizItem> polizTable;
+    private ArrayList<PolizPointerItem> polizPointerItems;
 
     private ArrayList<BinOperationItem> binOperationTable;
 
     private Stack<String> exprStack;
+
+    private HashMap<String, Integer> operatorsIndexes;
 
     public InternalProgramPresentation analyze(InternalProgramPresentation internalProgramPresentation) throws InternalParserException, SyntaxException, SemanticException {
         serviceTable = internalProgramPresentation.getServiceTable();
@@ -28,12 +31,18 @@ public class Parser {
         numberTable = internalProgramPresentation.getNumberTable();
         binOperationTable = internalProgramPresentation.getBinOperationTable();
         polizTable = new ArrayList<>();
+        polizPointerItems = new ArrayList<>();
         exprStack = new Stack<>();
+        operatorsIndexes = new HashMap<>();
 
         delimiterTable.add(new DelimiterItem("!"));
         delimiterTable.add(new DelimiterItem("!F"));
         delimiterTable.add(new DelimiterItem("R"));
         delimiterTable.add(new DelimiterItem("W"));
+
+        for (int i = 0; i < delimiterTable.size(); i++) {
+            operatorsIndexes.put(delimiterTable.get(i).getLexeme(), i);
+        }
 
         Queue<ParserQueueItem> input = new LinkedList<>();
         for (int i = 0; i < internalProgramPresentation.getLexemesSeqTable().size(); i++) {
@@ -60,7 +69,7 @@ public class Parser {
         int result = PROG(input);
         if(result != input.size())
             throw new SyntaxException("Syntax error (no more info)");
-        return new InternalProgramPresentation(serviceTable, delimiterTable, identifierTable, numberTable, internalProgramPresentation.getLexemesSeqTable(), binOperationTable, polizTable);
+        return new InternalProgramPresentation(serviceTable, delimiterTable, identifierTable, numberTable, internalProgramPresentation.getLexemesSeqTable(), binOperationTable, polizTable, polizPointerItems);
     }
 
     private int nextLexemeIs(Queue<ParserQueueItem> input, String lexeme){
@@ -228,7 +237,7 @@ public class Parser {
                     tempInput.poll();
                 }
                 exprStack.add(tempInput.peek().getLexeme());
-                polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
+                polizTable.add(new PolizItem(tempInput.peek().getLexId(),tempInput.poll().getTableId()));
                 result += result1;
                 int result2 = OPRND(tempInput);
                 if (result2 != -1) {
@@ -271,7 +280,7 @@ public class Parser {
                     tempInput.poll();
                 }
                 exprStack.add(tempInput.peek().getLexeme());
-                polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
+                polizTable.add(new PolizItem(tempInput.peek().getLexId(),tempInput.poll().getTableId()));
                 result += result1;
                 int result2 = MNOZH(tempInput);
                 if (result2 != -1) {
@@ -311,7 +320,7 @@ public class Parser {
                     tempInput.poll();
                 }
                 exprStack.add(tempInput.peek().getLexeme());
-                polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
+                polizTable.add(new PolizItem(tempInput.peek().getLexId(),tempInput.poll().getTableId()));
                 result += result1;
                 int result2 = SLAG(tempInput);
                 if (result2 != -1) {
@@ -346,7 +355,7 @@ public class Parser {
                 for (int i = 0; i < result - 1; i++) {
                     tempInput.poll();
                 }
-                polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
+                polizTable.add(new PolizItem(tempInput.peek().getLexId(),tempInput.poll().getTableId()));
                 int result1 = MNOZH(tempInput);
                 if(result1 != -1){
                     for (int i = 0; i < result1 - 1; i++) {
@@ -382,7 +391,7 @@ public class Parser {
             }
             Type type = getType(tempInput.peek());
             exprStack.add(type.name());
-            polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
+            polizTable.add(new PolizItem(tempInput.peek().getLexId(),tempInput.poll().getTableId()));
         }
 
         return result;
@@ -416,8 +425,8 @@ public class Parser {
         getType(tempInput.peek());
         result += result2;
 
-        polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
-        polizTable.add(new PolizItem("R"));
+        polizTable.add(new PolizItem(tempInput.peek().getLexId(),tempInput.poll().getTableId()));
+        polizTable.add(new PolizItem(operatorsIndexes.get("R"), InternalProgramPresentation.delimiterTableId));
 
         int result3 = nextLexemeIs(tempInput,",");
         while (result3 != -1) {
@@ -439,8 +448,8 @@ public class Parser {
             getType(tempInput.peek());
             result += result4;
 
-            polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
-            polizTable.add(new PolizItem("R"));
+            polizTable.add(new PolizItem(tempInput.peek().getLexId(),tempInput.poll().getTableId()));
+            polizTable.add(new PolizItem(operatorsIndexes.get("R"), InternalProgramPresentation.delimiterTableId));
 
             result3 = nextLexemeIs(tempInput,",");
 
@@ -486,7 +495,7 @@ public class Parser {
         }
         result += result2;
 
-        polizTable.add(new PolizItem("W"));
+        polizTable.add(new PolizItem(operatorsIndexes.get("W"), InternalProgramPresentation.delimiterTableId));
 
         int result3 = nextLexemeIs(tempInput,",");
         while (result3 != -1) {
@@ -507,7 +516,7 @@ public class Parser {
             }
             result += result4;
 
-            polizTable.add(new PolizItem("W"));
+            polizTable.add(new PolizItem(operatorsIndexes.get("W"), InternalProgramPresentation.delimiterTableId));
 
             result3 = nextLexemeIs(tempInput,",");
 
@@ -536,7 +545,7 @@ public class Parser {
             tempInput.poll();
         }
         Type typeVar = getType(tempInput.peek());
-        polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
+        polizTable.add(new PolizItem(tempInput.peek().getLexId(),tempInput.poll().getTableId()));
 
         int result1 = nextLexemeIs(tempInput, "ass");
         if (result1 == -1) {
@@ -547,7 +556,7 @@ public class Parser {
             tempInput.poll();
         }
         int operIndex = polizTable.size();
-        polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
+        polizTable.add(new PolizItem(tempInput.peek().getLexId(),tempInput.poll().getTableId()));
         result += result1;
 
         int result2 = EXPR(tempInput);
@@ -605,7 +614,7 @@ public class Parser {
 
         int gotoIfFalseIndex = polizTable.size();
         polizTable.add(null);
-        polizTable.add(new PolizItem("!F"));
+        polizTable.add(new PolizItem(operatorsIndexes.get("!F"), InternalProgramPresentation.delimiterTableId));
         int result3 = OPERATOR(tempInput);
         if (result3 == -1) {
             for (int i = 0; i < polizTable.size() - currentPolizPos; i++) {
@@ -629,7 +638,7 @@ public class Parser {
 
             int gotoNextIndex = polizTable.size();
             polizTable.add(null);
-            polizTable.add(new PolizItem("!"));
+            polizTable.add(new PolizItem(operatorsIndexes.get("!"), InternalProgramPresentation.delimiterTableId));
             gotoIfFalse = polizTable.size();
 
             int result5 = OPERATOR(tempInput);
@@ -642,11 +651,13 @@ public class Parser {
             for (int i = 0; i < result5; i++) {
                 tempInput.poll();
             }
-            polizTable.set(gotoNextIndex, new PolizItem(String.valueOf(polizTable.size())));
+            polizTable.set(gotoNextIndex, new PolizItem(polizPointerItems.size(), InternalProgramPresentation.polizPointerTableId));
+            polizPointerItems.add(new PolizPointerItem(polizTable.size()));
 
             result += result5;
         }
-        polizTable.set(gotoIfFalseIndex, new PolizItem(String.valueOf(gotoIfFalse)));
+        polizTable.set(gotoIfFalseIndex, new PolizItem(polizPointerItems.size(), InternalProgramPresentation.polizPointerTableId));
+        polizPointerItems.add(new PolizPointerItem(gotoIfFalse));
 
         return result;
     }
@@ -698,11 +709,11 @@ public class Parser {
             tempInput.poll();
         }
         result += result3;
-        polizTable.add(new PolizItem("<"));
+        polizTable.add(new PolizItem(operatorsIndexes.get("<"), InternalProgramPresentation.delimiterTableId));
 
         int gotoNextIndex = polizTable.size();
         polizTable.add(null);
-        polizTable.add(new PolizItem("!F"));
+        polizTable.add(new PolizItem(operatorsIndexes.get("!F"), InternalProgramPresentation.delimiterTableId));
 
         int result4 = nextLexemeIs(tempInput, "do");
         if (result4 == -1) {
@@ -728,9 +739,11 @@ public class Parser {
         }
         result += result5;
 
-        polizTable.add(new PolizItem(String.valueOf(gotoExpr)));
-        polizTable.add(new PolizItem("!"));
-        polizTable.set(gotoNextIndex, new PolizItem(String.valueOf(polizTable.size())));
+        polizTable.add(new PolizItem(polizPointerItems.size(), InternalProgramPresentation.polizPointerTableId));
+        polizPointerItems.add(new PolizPointerItem(gotoExpr));
+        polizTable.add(new PolizItem(operatorsIndexes.get("!"), InternalProgramPresentation.delimiterTableId));
+        polizTable.set(gotoNextIndex, new PolizItem(polizPointerItems.size(), InternalProgramPresentation.polizPointerTableId));
+        polizPointerItems.add(new PolizPointerItem(polizTable.size()));
 
         return result;
     }
@@ -761,7 +774,7 @@ public class Parser {
 
         int gotoNextIndex = polizTable.size();
         polizTable.add(null);
-        polizTable.add(new PolizItem("!F"));
+        polizTable.add(new PolizItem(operatorsIndexes.get("!F"), InternalProgramPresentation.delimiterTableId));
 
         int result2 = nextLexemeIs(tempInput, "do");
         if (result2 == -1) {
@@ -786,9 +799,11 @@ public class Parser {
             tempInput.poll();
         }
         result += result3;
-        polizTable.add(new PolizItem(String.valueOf(gotoExpr)));
-        polizTable.add(new PolizItem("!"));
-        polizTable.set(gotoNextIndex, new PolizItem(String.valueOf(polizTable.size())));
+        polizTable.add(new PolizItem(polizPointerItems.size(), InternalProgramPresentation.polizPointerTableId));
+        polizPointerItems.add(new PolizPointerItem(gotoExpr));
+        polizTable.add(new PolizItem(operatorsIndexes.get("!"), InternalProgramPresentation.delimiterTableId));
+        polizTable.set(gotoNextIndex, new PolizItem(polizPointerItems.size(), InternalProgramPresentation.polizPointerTableId));
+        polizPointerItems.add(new PolizPointerItem(polizTable.size()));
 
         return result;
     }
@@ -972,7 +987,7 @@ public class Parser {
         for (int i = 0; i < result5 - 1; i++) {
             tempInput.poll();
         }
-        polizTable.add(new PolizItem(tempInput.poll().getLexeme()));
+        polizTable.add(new PolizItem(tempInput.peek().getLexId(),tempInput.poll().getTableId()));
         result += result5;
         return result;
     }
