@@ -21,6 +21,9 @@ public class Parser {
     private ArrayList<BinOperationItem> binOperationTable;
 
     private Stack<String> exprStack;
+    private String message;
+    private int errorCol;
+    private int errorRow;
 
     private HashMap<String, Integer> operatorsIndexes;
 
@@ -34,6 +37,7 @@ public class Parser {
         polizPointerItems = new ArrayList<>();
         exprStack = new Stack<>();
         operatorsIndexes = new HashMap<>();
+        message = "";
 
         delimiterTable.add(new DelimiterItem("!"));
         delimiterTable.add(new DelimiterItem("!F"));
@@ -63,19 +67,23 @@ public class Parser {
                 default:
                     throw new InternalParserException("Invalid table id: " + internalProgramPresentation.getLexemesSeqTable().get(i).getTableId());
             }
-            input.add(new ParserQueueItem(internalProgramPresentation.getLexemesSeqTable().get(i).getLexId(), internalProgramPresentation.getLexemesSeqTable().get(i).getTableId(), lexemeText));
+            input.add(new ParserQueueItem(internalProgramPresentation.getLexemesSeqTable().get(i).getLexId(), internalProgramPresentation.getLexemesSeqTable().get(i).getTableId(), lexemeText, internalProgramPresentation.getLexemesSeqTable().get(i).getRow(), internalProgramPresentation.getLexemesSeqTable().get(i).getCol()));
         }
 
         int result = PROG(input);
         if(result != input.size())
-            throw new SyntaxException("Syntax error (no more info)");
+            throw new SyntaxException(errorRow + ":" + errorCol + " " + message);
         return new InternalProgramPresentation(serviceTable, delimiterTable, identifierTable, numberTable, internalProgramPresentation.getLexemesSeqTable(), binOperationTable, polizTable, polizPointerItems);
     }
 
     private int nextLexemeIs(Queue<ParserQueueItem> input, String lexeme){
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
-        if (tempInput.isEmpty())
+        if (tempInput.isEmpty()) {
+            errorCol = -1;
+            errorRow = -1;
+            message = "unexpected end of program";
             return -1;
+        }
         else{
             ParserQueueItem next = tempInput.poll();
             int skipped = 0;
@@ -85,13 +93,25 @@ public class Parser {
             }
             if (skipped > 0 && lexeme.equals("\n"))
                 return skipped;
-            return next.getLexeme().equals(lexeme) ? 1 + skipped : -1;
+            if (next.getLexeme().equals(lexeme)){
+                return 1 + skipped;
+            }
+            else {
+                errorCol = next.getCol() - next.getLexeme().length() - 1;
+                errorRow = next.getRow();
+                message = "error at or near lexeme '" + next.getLexeme() + "'";
+                return -1;
+            }
         }
     }
     private int isIdentifier(Queue<ParserQueueItem> input){
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
-        if (tempInput.isEmpty())
+        if (tempInput.isEmpty()) {
+            errorCol = -1;
+            errorRow = -1;
+            message = "unexpected end of program";
             return -1;
+        }
         else{
             ParserQueueItem next = tempInput.poll();
             int skipped = 0;
@@ -99,13 +119,25 @@ public class Parser {
                 next = tempInput.poll();
                 skipped++;
             }
-            return next.getTableId() == InternalProgramPresentation.identifierTableId ? 1 + skipped : -1;
+            if (next.getTableId() == InternalProgramPresentation.identifierTableId){
+                return 1 + skipped;
+            }
+            else {
+                errorCol = next.getCol() - next.getLexeme().length() - 1;
+                errorRow = next.getRow();
+                message = "error at or near lexeme '" + next.getLexeme() + "', identifier expected";
+                return -1;
+            }
         }
     }
     private int isNumber(Queue<ParserQueueItem> input) {
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
-        if (tempInput.isEmpty())
+        if (tempInput.isEmpty()) {
+            errorCol = -1;
+            errorRow = -1;
+            message = "unexpected end of program";
             return -1;
+        }
         else{
             ParserQueueItem next = tempInput.poll();
             int skipped = 0;
@@ -113,14 +145,26 @@ public class Parser {
                 next = tempInput.poll();
                 skipped++;
             }
-            return next.getTableId() == InternalProgramPresentation.numberTableId ? 1 + skipped : -1;
+            if (next.getTableId() == InternalProgramPresentation.numberTableId){
+                return 1 + skipped;
+            }
+            else {
+                errorCol = next.getCol() - next.getLexeme().length() - 1;
+                errorRow = next.getRow();
+                message = "error at or near lexeme '" + next.getLexeme() + "', number expected";
+                return -1;
+            }
         }
     }
 
     private int OGO(Queue<ParserQueueItem> input){
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
-        if (tempInput.isEmpty())
+        if (tempInput.isEmpty()) {
+            errorCol = -1;
+            errorRow = -1;
+            message = "unexpected end of program";
             return -1;
+        }
         else{
             ParserQueueItem next = tempInput.poll();
             int skipped = 0;
@@ -128,19 +172,31 @@ public class Parser {
                 next = tempInput.poll();
                 skipped++;
             }
-            return (next.getLexeme().equals("<>") ||
+            if (next.getLexeme().equals("<>") ||
                     next.getLexeme().equals("=") ||
                     next.getLexeme().equals("<") ||
                     next.getLexeme().equals("<=") ||
                     next.getLexeme().equals(">") ||
                     next.getLexeme().equals(">=")
-            )? 1 + skipped : -1;
+            ){
+                return 1 + skipped;
+            }
+            else {
+                errorCol = next.getCol() - next.getLexeme().length() - 1;
+                errorRow = next.getRow();
+                message = "error at or near lexeme '" + next.getLexeme() + "', relation operation expected";
+                return -1;
+            }
         }
     }
     private int OGS(Queue<ParserQueueItem> input){
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
-        if (tempInput.isEmpty())
+        if (tempInput.isEmpty()) {
+            errorCol = -1;
+            errorRow = -1;
+            message = "unexpected end of program";
             return -1;
+        }
         else{
             ParserQueueItem next = tempInput.poll();
             int skipped = 0;
@@ -148,16 +204,28 @@ public class Parser {
                 next = tempInput.poll();
                 skipped++;
             }
-            return (next.getLexeme().equals("+") ||
+            if (next.getLexeme().equals("+") ||
                     next.getLexeme().equals("-") ||
                     next.getLexeme().equals("or")
-            )? 1 + skipped : -1;
+            ){
+                return 1 + skipped;
+            }
+            else {
+                errorCol = next.getCol() - next.getLexeme().length() - 1;
+                errorRow = next.getRow();
+                message = "error at or near lexeme '" + next.getLexeme() + "', addition operation expected";
+                return -1;
+            }
         }
     }
     private int OGU(Queue<ParserQueueItem> input){
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
-        if (tempInput.isEmpty())
+        if (tempInput.isEmpty()) {
+            errorCol = -1;
+            errorRow = -1;
+            message = "unexpected end of program";
             return -1;
+        }
         else{
             ParserQueueItem next = tempInput.poll();
             int skipped = 0;
@@ -165,16 +233,28 @@ public class Parser {
                 next = tempInput.poll();
                 skipped++;
             }
-            return (next.getLexeme().equals("*") ||
+            if (next.getLexeme().equals("*") ||
                     next.getLexeme().equals("/") ||
                     next.getLexeme().equals("and")
-            )? 1 + skipped : -1;
+            ){
+                return 1 + skipped;
+            }
+            else {
+                errorCol = next.getCol() - next.getLexeme().length() - 1;
+                errorRow = next.getRow();
+                message = "error at or near lexeme '" + next.getLexeme() + "', multiplication operation expected";
+                return -1;
+            }
         }
     }
     private int LC(Queue<ParserQueueItem> input){
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
-        if (tempInput.isEmpty())
+        if (tempInput.isEmpty()) {
+            errorCol = -1;
+            errorRow = -1;
+            message = "unexpected end of program";
             return -1;
+        }
         else{
             ParserQueueItem next = tempInput.poll();
             int skipped = 0;
@@ -182,15 +262,27 @@ public class Parser {
                 next = tempInput.poll();
                 skipped++;
             }
-            return (next.getLexeme().equals("true") ||
+            if (next.getLexeme().equals("true") ||
                     next.getLexeme().equals("false")
-            )? 1 + skipped : -1;
+            ){
+                return 1 + skipped;
+            }
+            else {
+                errorCol = next.getCol() - next.getLexeme().length() - 1;
+                errorRow = next.getRow();
+                message = "error at or near lexeme '" + next.getLexeme() + "', boolean const expected";
+                return -1;
+            }
         }
     }
     private int UO(Queue<ParserQueueItem> input){
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
-        if (tempInput.isEmpty())
+        if (tempInput.isEmpty()) {
+            errorCol = -1;
+            errorRow = -1;
+            message = "unexpected end of program";
             return -1;
+        }
         else{
             ParserQueueItem next = tempInput.poll();
             int skipped = 0;
@@ -198,14 +290,25 @@ public class Parser {
                 next = tempInput.poll();
                 skipped++;
             }
-            return (next.getLexeme().equals("not")
-            )? 1 + skipped : -1;
+            if (next.getLexeme().equals("not")){
+                return 1 + skipped;
+            }
+            else {
+                errorCol = next.getCol() - next.getLexeme().length() - 1;
+                errorRow = next.getRow();
+                message = "unexpected lexeme '" + next.getLexeme() + "', 'not' expected";
+                return -1;
+            }
         }
     }
     private int T(Queue<ParserQueueItem> input){
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
-        if (tempInput.isEmpty())
+        if (tempInput.isEmpty()) {
+            errorCol = -1;
+            errorRow = -1;
+            message = "unexpected end of program";
             return -1;
+        }
         else{
             ParserQueueItem next = tempInput.poll();
             int skipped = 0;
@@ -213,10 +316,18 @@ public class Parser {
                 next = tempInput.poll();
                 skipped++;
             }
-            return (next.getLexeme().equals("int") ||
+            if (next.getLexeme().equals("int") ||
                     next.getLexeme().equals("float") ||
                     next.getLexeme().equals("bool")
-            )? 1 + skipped : -1;
+            ){
+                return 1 + skipped;
+            }
+            else {
+                errorCol = next.getCol() - next.getLexeme().length() - 1;
+                errorRow = next.getRow();
+                message = "unexpected lexeme '" + next.getLexeme() + "', type expected";
+                return -1;
+            }
         }
     }
 
@@ -930,7 +1041,7 @@ public class Parser {
         return result;
     }
 
-    private int PROG(Queue<ParserQueueItem> input) throws InternalParserException, SyntaxException, SemanticException {
+    private int PROG(Queue<ParserQueueItem> input) throws InternalParserException, SemanticException {
         Queue<ParserQueueItem> tempInput = new LinkedList<>(input);
         int result = nextLexemeIs(tempInput, "{");
         if (result == -1)
@@ -1017,7 +1128,7 @@ public class Parser {
                     throw new InternalParserException("can not find number with id " + parserQueueItem.getLexId());
                 result = identifierTable.get(parserQueueItem.getLexId()).getType();
                 if (result == null)
-                    throw new InternalParserException("variable '" + parserQueueItem.getLexeme() + "' not defined");
+                    throw new SemanticException("variable '" + parserQueueItem.getLexeme() + "' not defined");
                 break;
             default:
                 throw new InternalParserException("can not find table with id " + parserQueueItem.getTableId());
