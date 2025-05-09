@@ -65,7 +65,7 @@ public class Parser {
                     lexemeText = numberTable.get(internalProgramPresentation.getLexemesSeqTable().get(i).getLexId()).getLexeme();
                     break;
                 default:
-                    throw new InternalParserException("Invalid table id: " + internalProgramPresentation.getLexemesSeqTable().get(i).getTableId());
+                    throw new InternalParserException("Invalid table id: '" + internalProgramPresentation.getLexemesSeqTable().get(i).getTableId() + "'");
             }
             input.add(new ParserQueueItem(internalProgramPresentation.getLexemesSeqTable().get(i).getLexId(), internalProgramPresentation.getLexemesSeqTable().get(i).getTableId(), lexemeText, internalProgramPresentation.getLexemesSeqTable().get(i).getRow(), internalProgramPresentation.getLexemesSeqTable().get(i).getCol()));
         }
@@ -1120,21 +1120,21 @@ public class Parser {
                 throw new InternalParserException("can not get type of service word or delimiter");
             case InternalProgramPresentation.numberTableId:
                 if (parserQueueItem.getLexId() >= numberTable.size())
-                    throw new InternalParserException("can not find number with id " + parserQueueItem.getLexId());
+                    throw new InternalParserException("can not find number with id '" + parserQueueItem.getLexId() + "'");
                 result = numberTable.get(parserQueueItem.getLexId()).getType();
                 break;
             case InternalProgramPresentation.identifierTableId:
                 if (parserQueueItem.getLexId() >= identifierTable.size())
-                    throw new InternalParserException("can not find number with id " + parserQueueItem.getLexId());
+                    throw new InternalParserException("can not find number with id '" + parserQueueItem.getLexId() + "'");
                 result = identifierTable.get(parserQueueItem.getLexId()).getType();
                 if (result == null)
                     throw new SemanticException("variable '" + parserQueueItem.getLexeme() + "' not defined");
                 break;
             default:
-                throw new InternalParserException("can not find table with id " + parserQueueItem.getTableId());
+                throw new InternalParserException("can not find table with id '" + parserQueueItem.getTableId() + "'");
         }
         if (result == null)
-            throw new InternalParserException("can not get type of " + parserQueueItem.getTableId() + " " + parserQueueItem.getLexId());
+            throw new InternalParserException("can not get type of table id: '" + parserQueueItem.getTableId() + "', lexeme id: '" + parserQueueItem.getLexId() + "'");
         return result;
     }
 
@@ -1153,7 +1153,7 @@ public class Parser {
                 }
             }
             if (result == null)
-                throw new InternalParserException("can not get type of " + operand1 + " " + operator + " " + operand2);
+                throw new InternalParserException("can not get type of operand: '" + operand1 + "', operator: '" + operator + "', operand: '" + operand2 + "'");
             stack.push(result.name());
         }
         return Type.valueOf(stack.peek());
