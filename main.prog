@@ -3,8 +3,9 @@
     float temp;
     bool flag;
 
-    x ass 10;
-    y ass 20;
+    x ass 10b;
+    y ass 20ah;
+    result ass 20ah;
     flag ass true;
 
     if x < y * x - x - 4.44

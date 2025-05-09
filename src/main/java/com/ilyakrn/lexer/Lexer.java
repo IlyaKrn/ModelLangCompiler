@@ -242,7 +242,7 @@ public class Lexer {
         }
     }
 
-    private void put(int tableId, Type numType) throws InternalLexerException {
+    private void put(int tableId, Type numType, int numDimensionCount) throws InternalLexerException {
         switch (tableId){
             case InternalProgramPresentation.serviceTableId:
             case InternalProgramPresentation.delimiterTableId:
@@ -274,7 +274,7 @@ public class Lexer {
                     }
                 }
                 if(findId == -1){
-                    numberTable.add(new NumberItem(lexBuffer, numType));
+                    numberTable.add(new NumberItem(lexBuffer, numDimensionCount, numType));
                     curLexId = numberTable.size() - 1;
                 }
                 else {
@@ -402,7 +402,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId, Type.INT);
+                        put(InternalProgramPresentation.numberTableId, Type.INT, 10);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
@@ -441,7 +441,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId, Type.INT);
+                        put(InternalProgramPresentation.numberTableId, Type.INT, 10);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
@@ -474,7 +474,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId, Type.INT);
+                        put(InternalProgramPresentation.numberTableId, Type.INT, 10);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
@@ -510,7 +510,7 @@ public class Lexer {
                         if (curLexId == -1){
                             check(InternalProgramPresentation.delimiterTableId);
                             if (curLexId == -1){
-                                put(InternalProgramPresentation.identifierTableId, null);
+                                put(InternalProgramPresentation.identifierTableId, null, 0);
                                 write(InternalProgramPresentation.identifierTableId, curLexId);
                             }
                             else {
@@ -525,6 +525,27 @@ public class Lexer {
                     }
                     break;
                 case NUM_BIN_FIN:
+                    read();
+                    if(currentChar == null){
+                        message = "program end reached before '}'";
+                        currentState = STATE.ERROR;
+                    } else if (currentChar == 'H' || currentChar == 'h') {
+                        currentState = STATE.NUM_HEX_FIN;
+                        add();
+                    } else if (isHexAllow()) {
+                        currentState = STATE.NUM_HEX;
+                        add();
+                    } else if (isLetter() || isNumber()) {
+                        message = "unresolved character '" + currentChar + "'";
+                        currentState = STATE.ERROR;
+                    } else {
+                        currentState = STATE.DELIMITER;
+                        put(InternalProgramPresentation.numberTableId, Type.INT, 2);
+                        write(InternalProgramPresentation.numberTableId, curLexId);
+                        clean();
+                        add();
+                    }
+                    break;
                 case NUM_DEC_FIN:
                     read();
                     if(currentChar == null){
@@ -541,13 +562,28 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId, Type.INT);
+                        put(InternalProgramPresentation.numberTableId, Type.INT, 10);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
                     }
                     break;
                 case NUM_OCT_FIN:
+                    read();
+                    if(currentChar == null){
+                        message = "program end reached before '}'";
+                        currentState = STATE.ERROR;
+                    } else if (isLetter() || isNumber()) {
+                        message = "unresolved character '" + currentChar + "'";
+                        currentState = STATE.ERROR;
+                    } else {
+                        currentState = STATE.DELIMITER;
+                        put(InternalProgramPresentation.numberTableId, Type.INT, 8);
+                        write(InternalProgramPresentation.numberTableId, curLexId);
+                        clean();
+                        add();
+                    }
+                    break;
                 case NUM_HEX_FIN:
                     read();
                     if(currentChar == null){
@@ -558,7 +594,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId, Type.INT);
+                        put(InternalProgramPresentation.numberTableId, Type.INT, 16);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
@@ -592,7 +628,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId, Type.FLOAT);
+                        put(InternalProgramPresentation.numberTableId, Type.FLOAT, -1);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
@@ -614,7 +650,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId, Type.FLOAT);
+                        put(InternalProgramPresentation.numberTableId, Type.FLOAT, -1);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
@@ -633,7 +669,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId, Type.FLOAT);
+                        put(InternalProgramPresentation.numberTableId, Type.FLOAT, -1);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
@@ -651,7 +687,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId, Type.FLOAT);
+                        put(InternalProgramPresentation.numberTableId, Type.FLOAT, -1);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
@@ -677,7 +713,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId, Type.FLOAT);
+                        put(InternalProgramPresentation.numberTableId, Type.FLOAT, -1);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();
@@ -695,7 +731,7 @@ public class Lexer {
                         currentState = STATE.ERROR;
                     } else {
                         currentState = STATE.DELIMITER;
-                        put(InternalProgramPresentation.numberTableId, Type.FLOAT);
+                        put(InternalProgramPresentation.numberTableId, Type.FLOAT, -1);
                         write(InternalProgramPresentation.numberTableId, curLexId);
                         clean();
                         add();

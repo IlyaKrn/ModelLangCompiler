@@ -88,7 +88,7 @@ public final class InternalProgramPresentation {
         }
         sb.append("===================NUM===================\n");
         for (int i = 0; i < numberTable.size(); i++) {
-            sb.append(String.format("%s\t%s\t%s\n", i, numberTable.get(i).getLexeme(), numberTable.get(i).getType().name()));
+            sb.append(String.format("%s\t%s\t%s\t%s\n", i, numberTable.get(i).getLexeme(), numberTable.get(i).getType().name(), numberTable.get(i).getDimensionCount()));
         }
         sb.append("=================POINTER=================\n");
         for (int i = 0; i < polizPointerTable.size(); i++) {
