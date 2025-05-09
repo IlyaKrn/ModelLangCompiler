@@ -113,7 +113,7 @@ public final class InternalProgramPresentation {
                     break;
                 case numberTableId:
                     lexemeName = numberTable.get(lexemesSeqTable.get(i).getLexId()).getLexeme();
-                    tableName = "num";
+                    tableName = "num ";
                     break;
             }
             sb.append(String.format("%s\t%s\t%s\t%s\t\t\t\t%s\n", i, lexemesSeqTable.get(i).getLexId(), lexemesSeqTable.get(i).getTableId(), tableName, lexemeName ));
@@ -137,7 +137,7 @@ public final class InternalProgramPresentation {
                     break;
                 case numberTableId:
                     lexemeName = numberTable.get(polizTable.get(i).getLexId()).getLexeme();
-                    tableName = "num";
+                    tableName = "num ";
                     break;
                 case polizPointerTableId:
                     lexemeName = String.valueOf(polizPointerTable.get(polizTable.get(i).getLexId()).getPolizIndex());
