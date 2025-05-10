@@ -1,25 +1,25 @@
 package com.ilyakrn.entities.items;
 
 public class InterpreterStackItem {
-    private final String lexeme;
-    private final int lexId;
-    private final int tableId;
+    private final String value;
+    private final Type type;
+    private final String memoryAddress;
 
-    public String getLexeme() {
-        return lexeme;
+    public InterpreterStackItem(String value, Type type, String memoryAddress) {
+        this.value = value;
+        this.type = type;
+        this.memoryAddress = memoryAddress;
     }
 
-    public int getLexId() {
-        return lexId;
+    public String getValue() {
+        return value;
     }
 
-    public int getTableId() {
-        return tableId;
+    public Type getType() {
+        return type;
     }
 
-    public InterpreterStackItem(String lexeme, int lexId, int tableId) {
-        this.lexeme = lexeme;
-        this.lexId = lexId;
-        this.tableId = tableId;
+    public String getMemoryAddress() {
+        return memoryAddress;
     }
 }

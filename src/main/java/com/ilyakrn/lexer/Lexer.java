@@ -146,7 +146,7 @@ public class Lexer {
         binOperationTable.add(new BinOperationItem("*", Type.FLOAT, Type.INT, Type.FLOAT));
         binOperationTable.add(new BinOperationItem("*", Type.FLOAT, Type.FLOAT, Type.FLOAT));
 
-        binOperationTable.add(new BinOperationItem("/", Type.INT, Type.INT, Type.INT));
+        binOperationTable.add(new BinOperationItem("/", Type.INT, Type.INT, Type.FLOAT));
         binOperationTable.add(new BinOperationItem("/", Type.INT, Type.FLOAT, Type.FLOAT));
         binOperationTable.add(new BinOperationItem("/", Type.FLOAT, Type.INT, Type.FLOAT));
         binOperationTable.add(new BinOperationItem("/", Type.FLOAT, Type.FLOAT, Type.FLOAT));

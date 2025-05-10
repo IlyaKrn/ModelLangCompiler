@@ -26,6 +26,7 @@ public class Parser {
     private int errorRow;
 
     private HashMap<String, Integer> operatorsIndexes;
+    private int oneIndex;
 
     public InternalProgramPresentation analyze(InternalProgramPresentation internalProgramPresentation) throws InternalParserException, SyntaxException, SemanticException {
         serviceTable = internalProgramPresentation.getServiceTable();
@@ -46,6 +47,17 @@ public class Parser {
 
         for (int i = 0; i < delimiterTable.size(); i++) {
             operatorsIndexes.put(delimiterTable.get(i).getLexeme(), i);
+        }
+        oneIndex = -1;
+        for (int i = 0; i < numberTable.size(); i++) {
+            if (numberTable.get(i).getLexeme().equals("1")) {
+                oneIndex = i;
+                break;
+            }
+        }
+        if (oneIndex == -1) {
+            oneIndex = numberTable.size();
+            numberTable.add(new NumberItem("1", 10, Type.INT));
         }
 
         Queue<ParserQueueItem> input = new LinkedList<>();
@@ -849,6 +861,12 @@ public class Parser {
             tempInput.poll();
         }
         result += result5;
+
+        polizTable.add(polizTable.get(currentPolizPos));
+        polizTable.add(polizTable.get(currentPolizPos));
+        polizTable.add(new PolizItem(oneIndex, InternalProgramPresentation.numberTableId));
+        polizTable.add(new PolizItem(operatorsIndexes.get("+"), InternalProgramPresentation.delimiterTableId));
+        polizTable.add(new PolizItem(operatorsIndexes.get("ass"), InternalProgramPresentation.delimiterTableId));
 
         polizTable.add(new PolizItem(polizPointerItems.size(), InternalProgramPresentation.polizPointerTableId));
         polizPointerItems.add(new PolizPointerItem(gotoExpr));
