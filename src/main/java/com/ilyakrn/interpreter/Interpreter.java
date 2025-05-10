@@ -16,7 +16,6 @@ public class Interpreter {
     private InternalProgramPresentation internalProgramPresentation;
 
     public void interpret(InternalProgramPresentation input) {
-        System.out.println(input);
         memory = new HashMap<>();
         internalProgramPresentation = input;
 
