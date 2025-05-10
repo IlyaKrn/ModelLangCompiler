@@ -16,6 +16,7 @@ public class Interpreter {
     private InternalProgramPresentation internalProgramPresentation;
 
     public void interpret(InternalProgramPresentation input) {
+        System.out.println(input);
         memory = new HashMap<>();
         internalProgramPresentation = input;
 
@@ -54,7 +55,9 @@ public class Interpreter {
                     memory.put(getMemoryAddress(InternalProgramPresentation.numberTableId, i), new MemoryItem(Type.INT, value));
                 }
                 if (item.getType() == Type.FLOAT){
-                    throw new InternalInterpreterException("FLOAT UNDER DEVELOPMENT");
+                    String originValue = item.getLexeme();
+                    String value = "" + Float.parseFloat(originValue);
+                    memory.put(getMemoryAddress(InternalProgramPresentation.numberTableId, i), new MemoryItem(Type.FLOAT, value));
                 }
             } catch (NumberFormatException e) {
                 throw new InterpretationException("can not convert '" + item.getLexeme() + "' to decimal int");
@@ -124,7 +127,15 @@ public class Interpreter {
                                     }
                                     break;
                                 case FLOAT:
-                                    throw new InternalInterpreterException("FLOAT UNDER DEVELOPMENT");
+                                    try{
+                                        float floatValue = Float.parseFloat(value);
+                                        MemoryItem memoryItem = memory.get(stackOperand.getMemoryAddress());
+                                        memoryItem.setValue(String.valueOf(floatValue));
+                                        memory.put(stackOperand.getMemoryAddress(), memoryItem);
+                                    }catch (NumberFormatException e){
+                                        throw new InterpretationException("invalid float value");
+                                    }
+                                    break;
                                 case BOOL:
                                     if (!value.equals("true") && !value.equals("false"))
                                         throw new InterpretationException("can not convert '" + value + "' to bool");
