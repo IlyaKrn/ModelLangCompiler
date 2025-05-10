@@ -3,7 +3,6 @@ package com.ilyakrn.interpreter;
 import com.ilyakrn.entities.InternalProgramPresentation;
 import com.ilyakrn.entities.items.*;
 import com.ilyakrn.exceptions.external.InterpretationException;
-import com.ilyakrn.exceptions.internal.InternalInterpreterException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +32,7 @@ public class Interpreter {
                     defaultValue="false";
                     break;
                 default:
-                    throw new InternalInterpreterException("Unknown item type: '" + item.getType() + "'");
+                    throw new InterpretationException("Unknown item type: '" + item.getType() + "'");
 
             }
             memory.put(getMemoryAddress(InternalProgramPresentation.identifierTableId, i), new MemoryItem(item.getType(), defaultValue));
@@ -83,7 +82,7 @@ public class Interpreter {
 
             if (i == internalProgramPresentation.getPolizTable().size() - 1){
                 if (!execStack.isEmpty())
-                    throw new InternalInterpreterException("unexpected end of program");
+                    throw new InterpretationException("unexpected end of program");
                 if (currentPolizItem.getTableId() != InternalProgramPresentation.delimiterTableId || !internalProgramPresentation.getDelimiterTable().get(currentPolizItem.getLexId()).getLexeme().equals("}"))
                     throw new InterpretationException("program must be terminated by '}'");
                 return;
@@ -143,7 +142,7 @@ public class Interpreter {
                                     memory.put(stackOperand.getMemoryAddress(), memoryItem);
                                     break;
                                 default:
-                                    throw new InternalInterpreterException("unknown type '" + stackOperand.getType().name() + "'");
+                                    throw new InterpretationException("unknown type '" + stackOperand.getType().name() + "'");
                             }
                             break;
                         case "W":
@@ -153,7 +152,7 @@ public class Interpreter {
                             execStack.push(new InterpreterStackItem(stackOperand.getValue().equals("true") ? "false" : "true", Type.BOOL, null));
                             break;
                         default:
-                            throw new InternalInterpreterException("Invalid poliz operator '" + internalProgramPresentation.getDelimiterTable().get(currentPolizItem.getLexId()).getLexeme() + "'");
+                            throw new InterpretationException("Invalid poliz operator '" + internalProgramPresentation.getDelimiterTable().get(currentPolizItem.getLexId()).getLexeme() + "'");
                     }
                 } else if (operandsCount == 2) {
                     if (execStack.size() < 2)
@@ -324,10 +323,10 @@ public class Interpreter {
                             }
                             break;
                         default:
-                            throw new InternalInterpreterException("Invalid poliz operator " + internalProgramPresentation.getDelimiterTable().get(currentPolizItem.getLexId()).getLexeme());
+                            throw new InterpretationException("Invalid poliz operator " + internalProgramPresentation.getDelimiterTable().get(currentPolizItem.getLexId()).getLexeme());
                     }
                 } else {
-                    throw new InternalInterpreterException("operator with '" + operandsCount + "' operands are not allowed. operator '" + internalProgramPresentation.getDelimiterTable().get(currentPolizItem.getLexId()).getLexeme() + "'");
+                    throw new InterpretationException("operator with '" + operandsCount + "' operands are not allowed. operator '" + internalProgramPresentation.getDelimiterTable().get(currentPolizItem.getLexId()).getLexeme() + "'");
                 }
             } else {
                 execStack.push(new InterpreterStackItem(getValueById(currentPolizItem.getTableId(), currentPolizItem.getLexId()), getTypeById(currentPolizItem.getTableId(), currentPolizItem.getLexId()), getMemoryAddress(currentPolizItem.getTableId(), currentPolizItem.getLexId())));
@@ -339,22 +338,22 @@ public class Interpreter {
         switch (tableId){
             case InternalProgramPresentation.identifierTableId:
                 if (lexId >= internalProgramPresentation.getIdentifierTable().size())
-                    throw new InternalInterpreterException("identifier table id out of bounds");
+                    throw new InterpretationException("identifier table id out of bounds");
                 return internalProgramPresentation.getIdentifierTable().get(lexId).getType();
             case InternalProgramPresentation.numberTableId:
                 if (lexId >= internalProgramPresentation.getNumberTable().size())
-                    throw new InternalInterpreterException("number table id out of bounds");
+                    throw new InterpretationException("number table id out of bounds");
                 return internalProgramPresentation.getNumberTable().get(lexId).getType();
             case InternalProgramPresentation.serviceTableId:
                 if (lexId >= internalProgramPresentation.getServiceTable().size())
-                    throw new InternalInterpreterException("servide table id out of bounds");
+                    throw new InterpretationException("servide table id out of bounds");
                 if (!internalProgramPresentation.getServiceTable().get(lexId).getLexeme().equals("true") && !internalProgramPresentation.getServiceTable().get(lexId).getLexeme().equals("false"))
-                    throw new InternalInterpreterException("can not ger type of '" + internalProgramPresentation.getServiceTable().get(lexId).getLexeme() + "'");
+                    throw new InterpretationException("can not ger type of '" + internalProgramPresentation.getServiceTable().get(lexId).getLexeme() + "'");
                 return Type.BOOL;
             case InternalProgramPresentation.polizPointerTableId:
                 return Type.INT;
             default:
-                throw new InternalInterpreterException("can not get type of lexeme");
+                throw new InterpretationException("can not get type of lexeme");
         }
     }
 
@@ -389,7 +388,7 @@ public class Interpreter {
             case "not":
                 return 1;
             default:
-                throw new InternalInterpreterException("Invalid poliz operator '" + operator + "'");
+                throw new InterpretationException("Invalid poliz operator '" + operator + "'");
         }
     }
 
@@ -398,6 +397,6 @@ public class Interpreter {
             if (binOperationItem.getOperation().equals(operator) && binOperationItem.getOperand1() == type1 && binOperationItem.getOperand2() == type2)
                 return binOperationItem.getResult();
         }
-        throw new InternalInterpreterException("can not get result type for '" + type1 + "' '" + operator + "' '" + type2 + "'");
+        throw new InterpretationException("can not get result type for '" + type1 + "' '" + operator + "' '" + type2 + "'");
     }
 }

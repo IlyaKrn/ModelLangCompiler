@@ -1174,6 +1174,8 @@ public class Parser {
                 throw new InternalParserException("can not get type of operand: '" + operand1 + "', operator: '" + operator + "', operand: '" + operand2 + "'");
             stack.push(result.name());
         }
+        if (stack.isEmpty())
+            throw new SemanticException("can not get type of expression. (possibly you try to use numbers < 0? use 0-<number>)");
         return Type.valueOf(stack.peek());
     }
 
