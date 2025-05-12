@@ -44,8 +44,6 @@ public class Lexer {
     private final ArrayList<IdentifierItem> identifierTable;
     private final ArrayList<NumberItem> numberTable;
 
-    private final ArrayList<BinOperationItem> binOperationTable;
-
     private final ArrayList<LexemesSeqItem> lexemesSeqTable;
 
     private final Queue<Character> input;
@@ -57,7 +55,6 @@ public class Lexer {
         identifierTable = new ArrayList<>();
         numberTable = new ArrayList<>();
         lexemesSeqTable = new ArrayList<>();
-        binOperationTable = new ArrayList<>();
         curRow = 1;
         curCol = 1;
 
@@ -98,62 +95,6 @@ public class Lexer {
         delimiterTable.add(new DelimiterItem(")"));
         delimiterTable.add(new DelimiterItem("{"));
         delimiterTable.add(new DelimiterItem("}"));
-
-        binOperationTable.add(new BinOperationItem(">", Type.INT, Type.INT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem(">", Type.INT, Type.FLOAT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem(">", Type.FLOAT, Type.INT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem(">", Type.FLOAT, Type.FLOAT, Type.BOOL));
-
-        binOperationTable.add(new BinOperationItem("<", Type.INT, Type.INT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem("<", Type.INT, Type.FLOAT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem("<", Type.FLOAT, Type.INT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem("<", Type.FLOAT, Type.FLOAT, Type.BOOL));
-
-        binOperationTable.add(new BinOperationItem("<>", Type.INT, Type.INT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem("<>", Type.INT, Type.FLOAT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem("<>", Type.FLOAT, Type.INT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem("<>", Type.FLOAT, Type.FLOAT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem("<>", Type.BOOL, Type.BOOL, Type.BOOL));
-
-        binOperationTable.add(new BinOperationItem(">=", Type.INT, Type.INT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem(">=", Type.INT, Type.FLOAT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem(">=", Type.FLOAT, Type.INT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem(">=", Type.FLOAT, Type.FLOAT, Type.BOOL));
-
-        binOperationTable.add(new BinOperationItem("<=", Type.INT, Type.INT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem("<=", Type.INT, Type.FLOAT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem("<=", Type.FLOAT, Type.INT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem("<=", Type.FLOAT, Type.FLOAT, Type.BOOL));
-
-        binOperationTable.add(new BinOperationItem("=",  Type.INT, Type.INT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem("=",  Type.INT, Type.FLOAT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem("=",  Type.FLOAT, Type.INT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem("=",  Type.FLOAT, Type.FLOAT, Type.BOOL));
-        binOperationTable.add(new BinOperationItem("=",  Type.BOOL, Type.BOOL, Type.BOOL));
-
-        binOperationTable.add(new BinOperationItem("+", Type.INT, Type.INT, Type.INT));
-        binOperationTable.add(new BinOperationItem("+", Type.INT, Type.FLOAT, Type.FLOAT));
-        binOperationTable.add(new BinOperationItem("+", Type.FLOAT, Type.INT, Type.FLOAT));
-        binOperationTable.add(new BinOperationItem("+", Type.FLOAT, Type.FLOAT, Type.FLOAT));
-
-        binOperationTable.add(new BinOperationItem("-", Type.INT, Type.INT, Type.INT));
-        binOperationTable.add(new BinOperationItem("-", Type.INT, Type.FLOAT, Type.FLOAT));
-        binOperationTable.add(new BinOperationItem("-", Type.FLOAT, Type.INT, Type.FLOAT));
-        binOperationTable.add(new BinOperationItem("-", Type.FLOAT, Type.FLOAT, Type.FLOAT));
-
-        binOperationTable.add(new BinOperationItem("*", Type.INT, Type.INT, Type.INT));
-        binOperationTable.add(new BinOperationItem("*", Type.INT, Type.FLOAT, Type.FLOAT));
-        binOperationTable.add(new BinOperationItem("*", Type.FLOAT, Type.INT, Type.FLOAT));
-        binOperationTable.add(new BinOperationItem("*", Type.FLOAT, Type.FLOAT, Type.FLOAT));
-
-        binOperationTable.add(new BinOperationItem("/", Type.INT, Type.INT, Type.FLOAT));
-        binOperationTable.add(new BinOperationItem("/", Type.INT, Type.FLOAT, Type.FLOAT));
-        binOperationTable.add(new BinOperationItem("/", Type.FLOAT, Type.INT, Type.FLOAT));
-        binOperationTable.add(new BinOperationItem("/", Type.FLOAT, Type.FLOAT, Type.FLOAT));
-
-        binOperationTable.add(new BinOperationItem("or", Type.BOOL, Type.BOOL, Type.BOOL));
-
-        binOperationTable.add(new BinOperationItem("and", Type.BOOL, Type.BOOL, Type.BOOL));
 
     }
 
@@ -1004,7 +945,7 @@ public class Lexer {
             throw new LexicalException(curRow + ":" + (curCol - 1) + "\t" + message);
         }
 
-        return new InternalProgramPresentation(serviceTable, delimiterTable, identifierTable, numberTable, lexemesSeqTable, binOperationTable, new ArrayList(), new ArrayList());
+        return new InternalProgramPresentation(serviceTable, delimiterTable, identifierTable, numberTable, lexemesSeqTable, new ArrayList<>(), new ArrayList(), new ArrayList());
     }
 
 
