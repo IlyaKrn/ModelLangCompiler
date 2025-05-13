@@ -1,5 +1,43 @@
 {
-    int x;
-    for x ass 0-10 to 10
-    do write(x);
+    /* чтение чисел пока не прочитается отрицательное  */
+    float num;
+    read(num);
+    while num >= 0 do
+        read(num);
 }
+
+{
+    /* факториал числа  */
+    int n, i, fact;
+    read(n);
+
+    fact ass 1;
+    for i ass 2 to n + 1 do
+        fact ass fact * i;
+    write(fact);
+}
+
+{
+    /* сортировка трех чисел по возрастанию */
+    int x, y, z, t;
+    read(x, y, z);
+
+    if x > y then
+        t ass x
+        x ass y
+        y ass t;
+
+    if x > z then
+        t ass x
+        x ass z
+        z ass t;
+    if y > z then
+        t ass y
+        y ass z
+        z ass t;
+
+    write(x, y, z);
+}
+
+
+
